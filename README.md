@@ -7,7 +7,7 @@ https://user-images.githubusercontent.com/24765272/148058457-b8c9acd5-e294-458b-
 
 ### Intro.
 
-Press `<CR>` to __zoom-in__ the naughty current window in a new tab, and undo so by pressing it again :)
+Press `<CR>`(customizable) to __zoom-in__ the naughty current window in a new tab, and undo so by pressing it again :)
 
 ### Features
 
@@ -25,31 +25,23 @@ Press `<CR>` to __zoom-in__ the naughty current window in a new tab, and undo so
 
 ### installation
 
-#### Packer.nvim
-
-__WARNING: I haven't figured out how to let you customize the shortcut :/, you can only use `<CR>` for now.__
+#### Packer.nvim & Usage
 
 ```
 use {
   'nyngwang/NeoZoom.lua'
 }
-```
-
-### Usage: Shortcuts & Defaults
-
-Use `NeoZoomToggle` to zoom-in/out, example usage:
-
-```
-vim.api.nvim_set_keymap('n', '<CR>', '<cmd>lua NeoZoomToggle<CR>', { noremap=true, silent=true, nowait=true })
+-- Change '<CR>' to whatever shortcut you like :)
+vim.api.nvim_set_keymap('n', '<CR>', '<cmd>NeoZoomToggle<CR>', { noremap=true, silent=true, nowait=true })
 ```
 
 ### TODO list
 
 - [ ] a better README.md
-  - [ ] add a DEMO
-  - [ ] add packer.nvim installation guide
-  - [ ] add packer.nvim installation guide
-- [ ] have to use `setup` function instead of the ugly `_G.` something
+  - [x] add a DEMO
+  - [x] add packer.nvim installation guide
+  - [x] customizable shortcut
+- [x] have to use `setup` function instead of the ugly `_G.` something
 
 
 
