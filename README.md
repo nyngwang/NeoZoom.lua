@@ -37,7 +37,11 @@ use {
 
 ### Usage: Shortcuts & Defaults
 
-The default keymap of NeoZoom is `<CR>`. Not customizable :/ (SAD) (TODO)
+Use `NeoZoomToggle` to zoom-in/out, example usage:
+
+```
+vim.api.nvim_set_keymap('n', '<CR>', '<cmd>lua NeoZoomToggle<CR>', { noremap=true, silent=true, nowait=true })
+```
 
 ### TODO list
 
