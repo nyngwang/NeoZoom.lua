@@ -14,7 +14,9 @@ function M.maximize_current_split()
     if (vim.fn.tabpagenr('$') == 1) then
       return
     end
+    local last_cursor = vim.api.nvim_win_get_cursor(0)
     vim.cmd("tabclose")
+    vim.api.nvim_win_set_cursor(0, last_cursor)
   else
     local last_cursor = vim.api.nvim_win_get_cursor(0)
     vim.cmd("tabedit %:p")
