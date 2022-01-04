@@ -3,7 +3,7 @@ NeoZoom.lua
 
 ### DEMO
 
-(should includes some music.)
+https://user-images.githubusercontent.com/24765272/148058457-b8c9acd5-e294-458b-80f9-ecbebb36b383.mov
 
 ### Intro.
 
