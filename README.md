@@ -14,6 +14,7 @@ Press `<CR>` to __zoom-in__ the naughty current window in a new tab, and undo so
 - Cursor pos. is restored, after zoom-in
 - Fucking Light-weight (23 lines, including the comics in comment.)
 - No dependencies, but you had better know nothing about tabs.
+- (For advance users) Floating window on cursor-hover (e.g. to show LSP line Diagnostics message) indeed increases window count, this case is covered by NeoZoom.lua :)
 
 ---
 
