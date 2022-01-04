@@ -26,12 +26,11 @@ Press `<CR>` to __zoom-in__ the naughty current window in a new tab, and undo so
 
 #### Packer.nvim
 
+__WARNING: I haven't figured out how to let you customize the shortcut :/, you can only use `<CR>` for now.__
+
 ```
 use {
-  'nyngwang/NeoZoom.lua',
-  config = function()
-    _G.__NEO_ZOOM_KEY = '<CR>' -- Set below
-  end
+  'nyngwang/NeoZoom.lua'
 }
 ```
 
