@@ -37,14 +37,7 @@ use {
 
 ### Usage: Shortcuts & Defaults
 
-The default keymap of NeoZoom is `<CR>`. You can modify it with:
-
-```
-_G.__NEO_ZOOM_KEY = '<CR>'   -- Pick your lucky key.
-```
-
-If you rarely open many tabs / you don't know that (Neo)Vim has something called __tab__,
-then you're good to go :)
+The default keymap of NeoZoom is `<CR>`. Not customizable :/ (SAD) (TODO)
 
 ### TODO list
 
