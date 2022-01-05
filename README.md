@@ -34,13 +34,26 @@ Some more details:
 
 ### installation
 
-#### Packer.nvim & Usage
+#### Packer.nvim
 
 ```
 use {
   'nyngwang/NeoZoom.lua'
 }
--- Change '<CR>' to whatever shortcut you like :)
+```
+
+### Usage
+
+Change `<CR>` to whatever shortcut you like~
+
+Recommended, I will keep this one working in the future
+```
+-- this is to prevent the case you're also using `<cr>` for the toggle, and you use native quickfix list, so the `<cr>` will be intercepted :(
+vim.api.nvim_set_keymap('n', '<CR>', "&ft != 'qf' ? '<cmd>NeoZoomToggle<CR>' : '<CR>'", { noremap=true, silent=true, nowait=true })
+```
+
+Simple one, __If you never use quickfix list, pick this one__
+```
 vim.api.nvim_set_keymap('n', '<CR>', '<cmd>NeoZoomToggle<CR>', { noremap=true, silent=true, nowait=true })
 ```
 
