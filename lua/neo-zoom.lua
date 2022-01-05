@@ -15,8 +15,11 @@ function M.maximize_current_split()
       return
     end
     local last_cursor = vim.api.nvim_win_get_cursor(0)
+    local cur_buf = vim.api.nvim_get_current_buf()
     vim.cmd("tabclose")
-    vim.api.nvim_win_set_cursor(0, last_cursor)
+    if (vim.api.nvim_get_current_buf() == cur_buf) then
+      vim.api.nvim_win_set_cursor(0, last_cursor)
+    end
   else
     local last_cursor = vim.api.nvim_win_get_cursor(0)
     vim.cmd("tabedit %:p")
