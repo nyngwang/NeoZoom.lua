@@ -50,7 +50,9 @@ vim.api.nvim_set_keymap('n', '<CR>', '<cmd>NeoZoomToggle<CR>', { noremap=true, s
   - [x] add a DEMO
   - [x] add packer.nvim installation guide
   - [x] customizable shortcut
-- [x] have to use `setup` function instead of the ugly `_G.` something
+- [ ] config setup tutorial, must be simple and useful
+  - [x] have to use `setup` function instead of the ugly `_G.` something
+  - [ ] add a exclusion list for those strange `buf/filetype`
 
 
 
