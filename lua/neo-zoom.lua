@@ -6,7 +6,7 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 local M = {}
 
 function M.maximize_current_split()
-  if (vim.bo.buftype == "qf") then
+  if (vim.bo.filetype == "qf") then
     return
   end
   local cur_win = vim.api.nvim_get_current_win()
