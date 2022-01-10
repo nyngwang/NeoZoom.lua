@@ -11,15 +11,15 @@ Are you still using `<C-W>o` to maximize a window split and **DESTROY THE OTHER 
 
 You can think of NeoZoom.lua as enhanced `:tab split` , with these differences:
 
-1. `:tab split` won't restore your cursor position after you close the tab, but NeoZoom.lua will do.
-2. `:tab split` creates a new tab *on any circumstance*, while NeoZoom.lua closes those ones with a single window.
+1. `:tab split` won't restore your cursor position after you close the tab, while NeoZoom.lua will do.
+2. `:tab split` creates a new tab *on any circumstance*, while NeoZoom.lua `tabclose` one with a single window.
 
-So NeoZoom.lua is more user friendly, you only need one key to zoom-in/out. Since it is so lightweight (<100 lines including README.md), so that's it :)
+So NeoZoom.lua is more user friendly, you only need one key to zoom-in/out.
 
 Some more details:
 
-1. It zoom-in on any tab with more than one windows, and zoom-out on any tab with only one window. The last window in the last tab.
-2. NeoZoom.lua is very lightweight. It's almost impossible to have any conflict with those favorite plugins of you already installed.
+1. It zoom-in on any tab with more than one windows, and zoom-out on any tab with only one window. The last window in the last tab won't be close.
+2. NeoZoom.lua is very lightweight. It's almost impossible to have any conflict with those favorite plugins that you already installed.
 3. Floating window on cursor-hover (e.g. showing LSP Diagnostics message on cursor-hover) increases the number of windows, while this is taken into account.
 4. If you're using [kyazdani42/nvim-tree.lua](https://github.com/kyazdani42/nvim-tree.lua):
    1. You can open it after zoom-in.
@@ -28,7 +28,7 @@ Some more details:
 ### Features
 
 - Cursor pos. is restored, after zoom-in
-- Very Light-weight (23 lines, including the comics in comment.)
+- Very Light-weight (27 lines, excluding non-logics)
 - No dependencies, but you had better know nothing about tabs.
 - (For advance users) Floating window on cursor-hover (e.g. to show LSP line Diagnostics message) indeed increases window count, this case is covered by NeoZoom.lua :)
 
@@ -46,9 +46,9 @@ use {
 
 Change `<CR>` to whatever shortcut you like~
 
-Recommended, I will keep this one working in the future
+Recommended, I will keep track of this one to make sure it always works after any possible breaking change
 ```
--- this is to prevent the case you're also using `<cr>` for the toggle, and you use native quickfix list, so the `<cr>` will be intercepted :(
+-- if you use `<CR>` as toggle, then you should handle when to fallback yourself so it won't intercept the plain-old `<CR>`.
 vim.api.nvim_set_keymap('n', '<CR>', "&ft != 'qf' ? '<cmd>NeoZoomToggle<CR>' : '<CR>'", { noremap=true, silent=true, nowait=true })
 ```
 
