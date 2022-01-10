@@ -28,6 +28,10 @@ function M.maximize_current_split()
     if (vim.api.nvim_get_current_buf() == cur_buf) then
       vim.api.nvim_win_set_cursor(0, last_cursor)
     end
+    local old_scrolloff = vim.opt.scrolloff
+    vim.opt.scrolloff = 7
+    vim.cmd("exe 'normal! zt'")
+    vim.opt.scrolloff = old_scrolloff
   else
     vim.cmd('tab split')
   end
