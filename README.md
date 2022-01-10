@@ -12,7 +12,7 @@ Are you still using `<C-W>o` to maximize a window split and **DESTROY THE OTHER 
 You can think of NeoZoom.lua as enhanced `:tab split` , with these differences:
 
 1. `:tab split` won't restore your cursor position after you close the tab, while NeoZoom.lua will do.
-2. `:tab split` won't pin your current cursorline to 80% of height, while NeoZoom.lua will do to prevent you become a turtle 🐢.
+2. `:tab split` won't pin your current cursorline to 80% of the current height, while NeoZoom.lua will do to prevent you become a turtle 🐢.
 3. `:tab split` creates a new tab *on any circumstance*, while NeoZoom.lua `tabclose` one with a single window.
 
 So NeoZoom.lua is more user friendly, you only need one key to zoom-in/out.
