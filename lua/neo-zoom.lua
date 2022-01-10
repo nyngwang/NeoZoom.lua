@@ -17,11 +17,16 @@ function M.maximize_current_split()
     if (vim.fn.tabpagenr('$') == 1) then
       return
     end
+    local last_cursor = vim.api.nvim_win_get_cursor(0)
+    local cur_buf = vim.api.nvim_get_current_buf()
     if (vim.fn.tabpagenr('$') ~= vim.api.nvim_tabpage_get_number(0)) then
       vim.cmd('tabc')
       vim.cmd('tabp')
     else
       vim.cmd('tabc')
+    end
+    if (vim.api.nvim_get_current_buf() == cur_buf) then
+      vim.api.nvim_win_set_cursor(0, last_cursor)
     end
   else
     vim.cmd('tab split')
