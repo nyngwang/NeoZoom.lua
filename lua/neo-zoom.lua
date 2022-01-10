@@ -17,12 +17,9 @@ function M.maximize_current_split()
     if (vim.fn.tabpagenr('$') == 1) then
       return
     end
-    local last_cursor = vim.api.nvim_win_get_cursor(0)
-    local cur_buf = vim.api.nvim_get_current_buf()
+    local last_tab = vim.api.nvim_get_current_tabpage()
     vim.cmd("tabclose")
-    if (vim.api.nvim_get_current_buf() == cur_buf) then
-      vim.api.nvim_win_set_cursor(0, last_cursor)
-    end
+    vim.api.nvim_set_current_tabpage(last_tab)
   else
     local last_cursor = vim.api.nvim_win_get_cursor(0)
     vim.cmd('tabedit ' .. (vim.api.nvim_buf_get_name(0) == '' and '' or '%:p'))
