@@ -5,6 +5,13 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 
 local M = {}
 
+function pin_to_80_percent_height()
+  local old_scrolloff = vim.opt.scrolloff
+  vim.opt.scrolloff = 7
+  vim.cmd("exe 'normal! zt'")
+  vim.opt.scrolloff = old_scrolloff
+end
+
 function M.maximize_current_split()
   if (vim.bo.filetype == "qf") then
     return
@@ -28,12 +35,10 @@ function M.maximize_current_split()
     if (vim.api.nvim_get_current_buf() == cur_buf) then
       vim.api.nvim_win_set_cursor(0, last_cursor)
     end
-    local old_scrolloff = vim.opt.scrolloff
-    vim.opt.scrolloff = 7
-    vim.cmd("exe 'normal! zt'")
-    vim.opt.scrolloff = old_scrolloff
+    pin_to_80_percent_height()
   else
     vim.cmd('tab split')
+    pin_to_80_percent_height()
   end
 end
 
