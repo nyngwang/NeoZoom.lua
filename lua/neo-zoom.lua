@@ -5,6 +5,8 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 
 local M = {}
 
+M.last_tabpage = nil
+
 function M.maximize_current_split()
   if (vim.bo.filetype == "qf") then
     return
@@ -17,9 +19,12 @@ function M.maximize_current_split()
     if (vim.fn.tabpagenr('$') == 1) then
       return
     end
-    local last_tab = vim.api.nvim_get_current_tabpage()
-    vim.cmd("tabclose")
-    vim.api.nvim_set_current_tabpage(last_tab)
+    if (vim.fn.tabpagenr('$') ~= vim.api.nvim_tabpage_get_number(0)) then
+      vim.cmd('tabc')
+      vim.cmd('tabp')
+    else
+      vim.cmd('tabc')
+    end
   else
     local last_cursor = vim.api.nvim_win_get_cursor(0)
     vim.cmd('tabedit ' .. (vim.api.nvim_buf_get_name(0) == '' and '' or '%:p'))
