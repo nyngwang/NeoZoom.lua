@@ -5,7 +5,7 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 
 local M = {}
 
-function pin_to_80_percent_height()
+local function pin_to_80_percent_height()
   local old_scrolloff = vim.opt.scrolloff
   vim.opt.scrolloff = 7
   vim.cmd("exe 'normal! zt'")
