@@ -14,7 +14,8 @@ end
 
 function M.maximize_current_split()
   if (vim.bo.filetype == 'qf'
-    and vim.bo.buftype == 'nofile') then
+    or vim.bo.buftype == 'nofile'
+    or vim.bo.buftype == 'terminal') then
     return
   end
   local cur_win = vim.api.nvim_get_current_win()
