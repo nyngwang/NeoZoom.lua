@@ -5,8 +5,6 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 
 local M = {}
 
-M.last_tabpage = nil
-
 function M.maximize_current_split()
   if (vim.bo.filetype == "qf") then
     return
