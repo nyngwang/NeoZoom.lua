@@ -24,6 +24,8 @@ function M.maximize_current_split()
   vim.api.nvim_set_current_win(cur_win)
   if (vim.api.nvim_get_var('non_float_total') == 1) then
     if (vim.fn.tabpagenr('$') == 1) then
+      vim.cmd('tab split')
+      pin_to_80_percent_height()
       return
     end
     local last_cursor = vim.api.nvim_win_get_cursor(0)
