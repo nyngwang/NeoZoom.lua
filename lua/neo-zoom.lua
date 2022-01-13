@@ -9,8 +9,9 @@ local function pin_to_80_percent_height()
   local scrolloff = 7
   local cur_line = vim.fn.line('.')
   vim.cmd("exe 'normal! zt'")
-  if (cur_line > scrolloff)
-  vim.cmd("exe 'normal! " .. scrolloff .. "k" .. scrolloff .. "j")
+  if (cur_line > scrolloff) then
+    vim.cmd("exe 'normal! " .. scrolloff .. "k" .. scrolloff .. "j")
+  end
 end
 
 function M.maximize_current_split()
