@@ -6,10 +6,11 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 local M = {}
 
 local function pin_to_80_percent_height()
-  local old_scrolloff = vim.opt.scrolloff
-  vim.opt.scrolloff = 7
+  local scrolloff = 7
+  local cur_line = vim.fn.line('.')
   vim.cmd("exe 'normal! zt'")
-  vim.opt.scrolloff = old_scrolloff
+  if (cur_line > scrolloff)
+  vim.cmd("exe 'normal! " .. scrolloff .. "k" .. scrolloff .. "j")
 end
 
 function M.maximize_current_split()
