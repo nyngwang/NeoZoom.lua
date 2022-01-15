@@ -44,7 +44,7 @@ function M.maximize_current_split()
     -- should close the tab on zoom-out: should check that there is no other splits
     vim.cmd('tabc')
     -- restore the cursor
-    local win_p, buf_p, cur_p = parent_info_from_buf[cur_buf]
+    local win_p, buf_p, cur_p = M.parent_info_from_buf[cur_buf]
     -- TODO: didn't consider the case that the win_p doesn't exist anymore
     vim.api.nvim_set_current_win(win_p)
     -- TODO: how to prevent one to change the zoom-in buffer to one another. Or allow them to do so
