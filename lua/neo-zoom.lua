@@ -51,6 +51,8 @@ function M.maximize_current_split()
     vim.api.nvim_set_current_buf(cur_buf)
     restore_cursor_on(cur_p, buf_p)
     -- TODO: should change statusline color here
+    -- un-register current cur_buf
+    M.parent_info_from_buf[cur_buf] = nil
     return
   end
   local cur_win = vim.api.nvim_get_current_win()
