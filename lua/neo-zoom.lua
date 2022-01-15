@@ -50,6 +50,7 @@ function M.maximize_current_split()
     -- TODO: how to prevent one to change the zoom-in buffer to one another. Or allow them to do so
     vim.api.nvim_set_current_buf(cur_buf)
     restore_cursor_on(cur_p, buf_p)
+    pin_to_80_percent_height()
     -- TODO: should change statusline color here
     -- un-register current cur_buf
     M.parent_info_from_buf[cur_buf] = nil
