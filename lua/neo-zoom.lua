@@ -29,7 +29,7 @@ end
 local function is_a_parent(win_test)
   for k, v in pairs(M.parent_info_from_win) do
     if (win_test == v[1]) then
-      return true, k
+      return {true, k}
     end
   end
   return false
