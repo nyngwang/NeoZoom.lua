@@ -28,7 +28,7 @@ end
 
 local function is_a_parent(win_test)
   for k, v in pairs(M.parent_info_from_win) do
-    if (win_test == v[1]) then
+    if (win_test == v[2]) then
       return {true, k}
     end
   end
@@ -37,7 +37,7 @@ end
 
 local function is_a_child(tab_test)
   for k, v in pairs(M.parent_info_from_win) do
-    if (tab_test == v[]) then
+    if (tab_test == v[1]) then
       return {true, k}
     end
   end
@@ -64,7 +64,7 @@ function M.maximize_current_split()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
     vim.cmd('tabc')
     -- restore to the state one wants to zoom-in
-    local win_p, buf_p, cur_p = unpack(M.parent_info_from_win[is_a_child(cur_tab)[2]])
+    local _, win_p, buf_p, cur_p = unpack(M.parent_info_from_win[is_a_child(cur_tab)[2]])
     -- TODO: didn't consider the case that the win_p doesn't exist anymore
     vim.api.nvim_set_current_win(win_p)
     vim.api.nvim_set_current_buf(buf_p)
@@ -92,6 +92,7 @@ function M.maximize_current_split()
   -- register current state into parent_info_from_buf
   vim.cmd('tab split')
   M.parent_info_from_win[vim.api.nvim_get_current_win()] = {
+    cur_tab,
     cur_win,
     vim.api.nvim_get_current_buf(),
     vim.api.nvim_win_get_cursor(0)
