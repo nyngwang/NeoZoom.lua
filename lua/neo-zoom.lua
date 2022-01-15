@@ -41,7 +41,6 @@ function M.maximize_current_split()
     or vim.bo.filetype == 'qf') then
     return
   end
-  local cur_buf = vim.api.nvim_get_current_buf()
   local cur_win = vim.api.nvim_get_current_win()
   -- if the current win is parent then follow the link.
   if is_a_parent(cur_win) then
@@ -51,13 +50,21 @@ function M.maximize_current_split()
   -- if the current win has a parent then go back
   if M.parent_info_from_win[cur_win] ~= nil then
     -- as a scratch pad: the other splits discarded
+    local buf_closed = vim.api.nvim_get_current_buf()
+    local cur_closed = vim.api.nvim_win_get_cursor(0)
     vim.cmd('tabc')
     -- restore to the state one wants to zoom-in
     local win_p, buf_p, cur_p = unpack(M.parent_info_from_win[cur_win])
     -- TODO: didn't consider the case that the win_p doesn't exist anymore
     vim.api.nvim_set_current_win(win_p)
     vim.api.nvim_set_current_buf(buf_p)
-    vim.api.nvim_win_set_cursor(win_p, cur_p)
+
+    -- update cursor-pos **only** on buffer-match.
+    if (buf_p == buf_closed) then
+      vim.api.nvim_win_set_cursor(win_p, cur_closed)
+    else
+      vim.api.nvim_win_set_cursor(win_p, cur_p)
+    end
     pin_to_80_percent_height()
     -- un-register current cur_win
     M.parent_info_from_win[cur_win] = nil
