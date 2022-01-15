@@ -32,7 +32,7 @@ local function is_a_parent(win_test)
       return {true, k}
     end
   end
-  return false
+  return {false}
 end
 
 function M.maximize_current_split()
