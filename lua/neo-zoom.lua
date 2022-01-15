@@ -57,7 +57,7 @@ function M.maximize_current_split()
     -- TODO: didn't consider the case that the win_p doesn't exist anymore
     vim.api.nvim_set_current_win(win_p)
     vim.api.nvim_set_current_buf(buf_p)
-    vim.api.nvim_win_set_cursor(cur_p)
+    vim.api.nvim_win_set_cursor(win_p, cur_p)
     pin_to_80_percent_height()
     -- un-register current cur_win
     M.parent_info_from_win[cur_win] = nil
