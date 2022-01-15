@@ -43,8 +43,8 @@ function M.maximize_current_split()
   end
   local cur_win = vim.api.nvim_get_current_win()
   -- if the current win is parent then follow the link.
-  if is_a_parent(cur_win) then
-    vim.api.nvim_set_current_win(unpack(is_a_parent(cur_win))[2])
+  if is_a_parent(cur_win)[1] then
+    vim.api.nvim_set_current_win(is_a_parent(cur_win)[2])
     return
   end
   -- if the current win has a parent then go back
