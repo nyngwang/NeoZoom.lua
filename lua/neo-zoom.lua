@@ -28,10 +28,10 @@ end
 
 local function clone_parent_info_to(from_win, to_win)
   M.parent_info_from_win[to_win] = {
-    from_win[1],
-    from_win[2],
-    from_win[3],
-    from_win[4]
+    M.parent_info_from_win[from_win][1],
+    M.parent_info_from_win[from_win][2],
+    M.parent_info_from_win[from_win][3],
+    M.parent_info_from_win[from_win][4],
   }
 end
 
