@@ -44,6 +44,17 @@ local function is_a_child(tab_test)
   return {false}
 end
 
+function M.neo_vsplit()
+  local right_win = vim.api.nvim_get_current_win()
+  vim.cmd('vsplit')
+  local left_win = vim.api.nvim_get_current_win()
+  vim.cmd('wincmd l')
+  if right_win == left_win then
+    print('THIS IS NOT EXPECTED')
+  end
+end
+
+
 function M.maximize_current_split()
   if (vim.bo.buftype == 'nofile'
     or vim.bo.buftype == 'terminal'
