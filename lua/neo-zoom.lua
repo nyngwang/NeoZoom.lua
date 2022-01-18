@@ -6,6 +6,24 @@ local M = {}
 
 M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
 
+local function is_a_parent(win_test)
+  for k, v in pairs(M.parent_info_from_win) do
+    if (win_test == v[1]) then
+      return {true, k}
+    end
+  end
+  return {false}
+end
+
+local function is_a_child(tab_test)
+  for k, v in pairs(M.parent_info_from_win) do
+    if (tab_test == v[4]) then
+      return {true, k}
+    end
+  end
+  return {false}
+end
+
 local function migration_parent_info(from_win, to_win)
   M.parent_info_from_win[to_win] = M.parent_info_from_win[from_win]
   M.parent_info_from_win[from_win] = nil
@@ -28,15 +46,6 @@ function M.neo_split()
   if bottom_win == top_win then print('FUCKING IMPOSSIBLE'); return end
   migration_parent_info(bottom_win, top_win)
 end
----------------------------------------------------------------------------------------------------
-local function pin_to_80_percent_height()
-  local scrolloff = 7
-  local cur_line = vim.fn.line('.')
-  vim.cmd("normal! zt")
-  if (cur_line > scrolloff) then
-    vim.cmd("normal! " .. scrolloff .. "k" .. scrolloff .. "j")
-  end
-end
 
 local function close_tab_properly()
   if (vim.fn.tabpagenr('$') ~= vim.api.nvim_tabpage_get_number(0)) then
@@ -47,24 +56,15 @@ local function close_tab_properly()
   end
 end
 
-local function is_a_parent(win_test)
-  for k, v in pairs(M.parent_info_from_win) do
-    if (win_test == v[1]) then
-      return {true, k}
-    end
+local function pin_to_80_percent_height()
+  local scrolloff = 7
+  local cur_line = vim.fn.line('.')
+  vim.cmd("normal! zt")
+  if (cur_line > scrolloff) then
+    vim.cmd("normal! " .. scrolloff .. "k" .. scrolloff .. "j")
   end
-  return {false}
 end
-
-local function is_a_child(tab_test)
-  for k, v in pairs(M.parent_info_from_win) do
-    if (tab_test == v[4]) then
-      return {true, k}
-    end
-  end
-  return {false}
-end
-
+---------------------------------------------------------------------------------------------------
 function M.maximize_current_split()
   if (vim.bo.buftype == 'nofile'
     or vim.bo.buftype == 'terminal'
