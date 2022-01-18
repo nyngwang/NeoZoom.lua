@@ -24,9 +24,13 @@ local function is_a_child(tab_test)
   return {false}
 end
 
-local function migration_parent_info(from_win, to_win)
-  M.parent_info_from_win[to_win] = M.parent_info_from_win[from_win]
-  M.parent_info_from_win[from_win] = nil
+local function clone_parent_info_to(from_win, to_win)
+  M.parent_info_from_win[to_win] = {
+    from_win[1],
+    from_win[2],
+    from_win[3],
+    from_win[4]
+  }
 end
 
 function M.neo_vsplit()
@@ -35,7 +39,7 @@ function M.neo_vsplit()
   local left_win = vim.api.nvim_get_current_win()
   vim.cmd('wincmd l')
   if right_win == left_win then print('FUCKING IMPOSSIBLE'); return end
-  migration_parent_info(right_win, left_win)
+  clone_parent_info_to(right_win, left_win)
 end
 
 function M.neo_split()
@@ -44,7 +48,7 @@ function M.neo_split()
   local top_win = vim.api.nvim_get_current_win()
   vim.cmd('wincmd j')
   if bottom_win == top_win then print('FUCKING IMPOSSIBLE'); return end
-  migration_parent_info(bottom_win, top_win)
+  clone_parent_info_to(bottom_win, top_win)
 end
 
 local function close_tab_properly()
@@ -72,13 +76,11 @@ function M.maximize_current_split()
     return
   end
   local cur_win = vim.api.nvim_get_current_win()
-  -- if the current win is parent then follow the link.
-  if is_a_parent(cur_win)[1] then
-    vim.api.nvim_set_current_win(is_a_parent(cur_win)[2])
-    return
-  end
-  -- if the current tab is a child, close it no matter how many splits there are
   local cur_tab = vim.api.nvim_get_current_tabpage()
+  -- (to be discarded) if the current win is parent then still fuck that create a new win.
+  -- if the current tab is a child, close it no matter how many splits there are
+  -- if the current tab is a child AND 
+
   if is_a_child(cur_tab)[1] then
     -- as a scratch pad: the other splits discarded
     local buf_closed = vim.api.nvim_get_current_buf()
