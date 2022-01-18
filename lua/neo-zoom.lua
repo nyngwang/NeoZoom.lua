@@ -49,8 +49,8 @@ function M.neo_vsplit()
   vim.cmd('vsplit')
   local left_win = vim.api.nvim_get_current_win()
   vim.cmd('wincmd l')
-  if right_win == left_win then
-    print('THIS IS NOT EXPECTED')
+  if right_win ~= left_win then
+    print('THIS IS EXPECTED')
   end
 end
 
