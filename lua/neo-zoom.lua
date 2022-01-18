@@ -44,16 +44,28 @@ local function is_a_child(tab_test)
   return {false}
 end
 
+local function migration_parent_info(from_win, to_win)
+  M.parent_info_from_win[to_win] = M.parent_info_from_win[from_win]
+  M.parent_info_from_win[from_win] = nil
+end
+
 function M.neo_vsplit()
   local right_win = vim.api.nvim_get_current_win()
   vim.cmd('vsplit')
   local left_win = vim.api.nvim_get_current_win()
   vim.cmd('wincmd l')
-  if right_win ~= left_win then
-    print('THIS IS EXPECTED')
-  end
+  if right_win == left_win then print('FUCKING IMPOSSIBLE'); return end
+  migration_parent_info(right_win, left_win)
 end
 
+function M.neo_split()
+  local bottom_win = vim.api.nvim_get_current_win()
+  vim.cmd('split')
+  local top_win = vim.api.nvim_get_current_win()
+  vim.cmd('wincmd j')
+  if bottom_win == top_win then print('FUCKING IMPOSSIBLE'); return end
+  migration_parent_info(bottom_win, top_win)
+end
 
 function M.maximize_current_split()
   if (vim.bo.buftype == 'nofile'
@@ -102,8 +114,9 @@ function M.maximize_current_split()
   end
   -- register current state into parent_info_from_buf
   vim.cmd('tab split')
+  local old_win = cur_win
   M.parent_info_from_win[vim.api.nvim_get_current_win()] = {
-    cur_win,
+    old_win,
     vim.api.nvim_get_current_buf(),
     vim.api.nvim_win_get_cursor(0),
     vim.api.nvim_get_current_tabpage()
