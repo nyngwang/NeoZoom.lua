@@ -56,15 +56,6 @@ function M.neo_split()
   clone_parent_info_to(bottom_win, top_win)
 end
 
-local function close_tab_properly()
-  if (vim.fn.tabpagenr('$') ~= vim.api.nvim_tabpage_get_number(0)) then
-    vim.cmd('tabc')
-    vim.cmd('tabp')
-  else
-    vim.cmd('tabc')
-  end
-end
-
 local function pin_to_80_percent_height()
   local scrolloff = 7
   local cur_line = vim.fn.line('.')
@@ -72,12 +63,6 @@ local function pin_to_80_percent_height()
   if (cur_line > scrolloff) then
     vim.cmd("normal! " .. scrolloff .. "k" .. scrolloff .. "j")
   end
-end
-
-local function count_and_keep_current_win(cur_win)
-  vim.api.nvim_set_var('non_float_total', 0)
-  vim.cmd("windo if &buftype != 'nofile' | let g:non_float_total += 1 | endif")
-  vim.api.nvim_set_current_win(cur_win)
 end
 ---------------------------------------------------------------------------------------------------
 function M.maximize_current_split()
@@ -88,18 +73,18 @@ function M.maximize_current_split()
   end
   local cur_win = vim.api.nvim_get_current_win()
   local cur_tab = vim.api.nvim_get_current_tabpage()
-  -- if the current win is parent OR not parent still fuck that create a new tab for it
-  -- final note: on (1)without NeoNoName, and if...istheonlysplit case, should un-register win
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
     local win_p, buf_p, cur_p, tab_p = consume(cur_win)
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
-    -- TODO: detect NeoNoName here
+    -- TODO: can use NeoNoName to "close" split
     vim.cmd('wincmd q')
 
-    -- TODO: still not consider the case that the win_p doesn't exist anymore
+    if not vim.api.nvim_win_is_valid(win_p) then -- restore your mom
+      return
+    end
     -- restore info
     vim.api.nvim_set_current_win(win_p)
     vim.api.nvim_set_current_buf(buf_closed)
@@ -116,9 +101,9 @@ function M.maximize_current_split()
       vim.api.nvim_win_get_cursor(0),
       vim.api.nvim_get_current_tabpage()
     }
+    -- TODO: should enable the zoom-in statusline color here
   end
   pin_to_80_percent_height()
-  -- TODO: should enable the zoom-in statusline color here
 end
 
 local function setup_vim_commands()
