@@ -6,6 +6,13 @@ local M = {}
 
 M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
 
+local function consume(win)
+  local data = M.parent_info_from_win[win]
+  -- assume data exist on object free
+  M.parent_info_from_win[win] = nil
+  return unpack(data)
+end
+
 local function is_a_parent(win_test)
   for k, v in pairs(M.parent_info_from_win) do
     if (win_test == v[1]) then
@@ -15,21 +22,19 @@ local function is_a_parent(win_test)
   return {false}
 end
 
-local function is_a_child(tab_test)
-  for k, v in pairs(M.parent_info_from_win) do
-    if (tab_test == v[4]) then
-      return {true, k}
-    end
-  end
-  return {false}
+local function is_a_child(win_test)
+  return M.parent_info_from_win[win_test] ~= nil
 end
 
 local function clone_parent_info_to(from_win, to_win)
+  if M.parent_info_from_win[from_win] == nil then -- no need to clone
+    return
+  end
   M.parent_info_from_win[to_win] = {
-    from_win[1],
-    from_win[2],
-    from_win[3],
-    from_win[4]
+    M.parent_info_from_win[from_win][1],
+    M.parent_info_from_win[from_win][2],
+    M.parent_info_from_win[from_win][3],
+    M.parent_info_from_win[from_win][4],
   }
 end
 
@@ -68,6 +73,12 @@ local function pin_to_80_percent_height()
     vim.cmd("normal! " .. scrolloff .. "k" .. scrolloff .. "j")
   end
 end
+
+local function count_and_keep_current_win(cur_win)
+  vim.api.nvim_set_var('non_float_total', 0)
+  vim.cmd("windo if &buftype != 'nofile' | let g:non_float_total += 1 | endif")
+  vim.api.nvim_set_current_win(cur_win)
+end
 ---------------------------------------------------------------------------------------------------
 function M.maximize_current_split()
   if (vim.bo.buftype == 'nofile'
@@ -77,58 +88,44 @@ function M.maximize_current_split()
   end
   local cur_win = vim.api.nvim_get_current_win()
   local cur_tab = vim.api.nvim_get_current_tabpage()
-  -- (to be discarded) if the current win is parent then still fuck that create a new win.
-  -- if the current tab is a child, close it no matter how many splits there are
-  -- if the current tab is a child AND 
+  -- if the current win is parent OR not parent still fuck that create a new tab for it
+  -- final note: on (1)without NeoNoName, and if...istheonlysplit case, should un-register win
 
-  if is_a_child(cur_tab)[1] then
-    -- as a scratch pad: the other splits discarded
+  if is_a_child(cur_win) then -- should close the current win and do some restore
+    local win_p, buf_p, cur_p, tab_p = consume(cur_win)
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
-    vim.cmd('tabc')
-    -- restore to the state one wants to zoom-in
-    local win_p, buf_p, cur_p = unpack(M.parent_info_from_win[is_a_child(cur_tab)[2]])
-    -- TODO: didn't consider the case that the win_p doesn't exist anymore
+
+    -- TODO: detect NeoNoName here
+    vim.cmd('wincmd q')
+
+    -- TODO: still not consider the case that the win_p doesn't exist anymore
+    -- restore info
     vim.api.nvim_set_current_win(win_p)
-    vim.api.nvim_set_current_buf(buf_p)
+    vim.api.nvim_set_current_buf(buf_closed)
+    vim.api.nvim_win_set_cursor(win_p, cur_closed)
 
-    -- update cursor-pos **only** on buffer-match.
-    if (buf_p == buf_closed) then
-      vim.api.nvim_win_set_cursor(win_p, cur_closed)
-    else
-      vim.api.nvim_win_set_cursor(win_p, cur_p)
-    end
-    pin_to_80_percent_height()
-    -- un-register current cur_win
-    M.parent_info_from_win[cur_win] = nil
-    -- TODO: should change statusline color here
-    return
+    -- TODO: should disable the zoom-in statusline color here
+  else -- if the current win is not a chlid
+    vim.cmd('tab split')
+    local old_win = cur_win
+    cur_win = vim.api.nvim_get_current_win()
+    M.parent_info_from_win[cur_win] = {
+      old_win,
+      vim.api.nvim_get_current_buf(),
+      vim.api.nvim_win_get_cursor(0),
+      vim.api.nvim_get_current_tabpage()
+    }
   end
-
-  -- might have chance to zoom-in
-  vim.api.nvim_set_var('non_float_total', 0)
-  vim.cmd("windo if &buftype != 'nofile' | let g:non_float_total += 1 | endif")
-  vim.api.nvim_set_current_win(cur_win)
-  if (vim.api.nvim_get_var('non_float_total') == 1) then
-    return
-  end
-  -- register current state into parent_info_from_buf
-  vim.cmd('tab split')
-  local old_win = cur_win
-  M.parent_info_from_win[vim.api.nvim_get_current_win()] = {
-    old_win,
-    vim.api.nvim_get_current_buf(),
-    vim.api.nvim_win_get_cursor(0),
-    vim.api.nvim_get_current_tabpage()
-  }
   pin_to_80_percent_height()
-  -- TODO: should change statusline color here
+  -- TODO: should enable the zoom-in statusline color here
 end
-
 
 local function setup_vim_commands()
   vim.cmd [[
     command! NeoZoomToggle lua require'neo-zoom'.maximize_current_split()
+    command! NeoVSplit lua require'neo-zoom'.neo_vsplit()
+    command! NeoSplit lua require'neo-zoom'.neo_split()
   ]]
 end
 
