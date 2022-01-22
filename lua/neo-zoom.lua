@@ -14,12 +14,20 @@ local function consume(win)
 end
 
 local function is_a_parent(win_test)
+  local MAX = 999
+  local win_closest = nil
+  local tab_n_of_closest_win = MAX
   for k, v in pairs(M.parent_info_from_win) do
     if (win_test == v[1]) then
-      return {true, k}
+      local tab_n = vim.api.nvim_tabpage_get_number(v[4])
+      if tab_n_of_closest_win > tab_n then
+        tab_n_of_closest_win = tab_n
+        win_closest = k
+      end
     end
   end
-  return {false}
+  if tab_n_of_closest_win == MAX then return {false}
+  else return {true, win_closest} end
 end
 
 local function is_a_child(win_test)
@@ -65,7 +73,7 @@ local function pin_to_80_percent_height()
   end
 end
 ---------------------------------------------------------------------------------------------------
-function M.maximize_current_split()
+function M.neo_zoom()
   if (vim.bo.buftype == 'nofile'
     or vim.bo.buftype == 'terminal'
     or vim.bo.filetype == 'qf') then
@@ -75,7 +83,7 @@ function M.maximize_current_split()
   local cur_tab = vim.api.nvim_get_current_tabpage()
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
-    local win_p, buf_p, cur_p, tab_p = consume(cur_win)
+    local win_p = consume(cur_win)
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
@@ -91,7 +99,14 @@ function M.maximize_current_split()
     vim.api.nvim_win_set_cursor(win_p, cur_closed)
 
     -- TODO: should disable the zoom-in statusline color here
-  else -- if the current win is not a chlid
+  elseif is_a_parent(cur_win)[1] then -- go the the first child on the closest following tabs.
+    local cur_cur = vim.api.nvim_win_get_cursor(cur_win)
+    local child_win_closest = is_a_parent(cur_win)[2]
+    -- restore info
+    vim.api.nvim_set_current_win(child_win_closest)
+    vim.api.nvim_set_current_buf(vim.api.nvim_win_get_buf(cur_win))
+    vim.api.nvim_win_set_cursor(0, cur_cur)
+  else -- if the current win is not a 
     vim.cmd('tab split')
     local old_win = cur_win
     cur_win = vim.api.nvim_get_current_win()
@@ -108,7 +123,7 @@ end
 
 local function setup_vim_commands()
   vim.cmd [[
-    command! NeoZoomToggle lua require'neo-zoom'.maximize_current_split()
+    command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
     command! NeoVSplit lua require'neo-zoom'.neo_vsplit()
     command! NeoSplit lua require'neo-zoom'.neo_split()
   ]]
