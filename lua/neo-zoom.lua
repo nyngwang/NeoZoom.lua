@@ -102,11 +102,8 @@ function M.neo_zoom()
   elseif is_a_parent(cur_win)[1] then -- go the the first child on the closest following tabs.
     local cur_cur = vim.api.nvim_win_get_cursor(cur_win)
     local child_win_closest = is_a_parent(cur_win)[2]
-    -- restore info
     vim.api.nvim_set_current_win(child_win_closest)
-    vim.api.nvim_set_current_buf(vim.api.nvim_win_get_buf(cur_win))
-    vim.api.nvim_win_set_cursor(0, cur_cur)
-  else -- if the current win is not a 
+  else -- if the current win is neither parent nor child.
     vim.cmd('tab split')
     local old_win = cur_win
     cur_win = vim.api.nvim_get_current_win()
