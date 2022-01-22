@@ -123,7 +123,7 @@ end
 
 local function setup_vim_commands()
   vim.cmd [[
-    command! NeoZoomToggle lua require'neo-zoom'.maximize_current_split()
+    command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
     command! NeoVSplit lua require'neo-zoom'.neo_vsplit()
     command! NeoSplit lua require'neo-zoom'.neo_split()
   ]]
