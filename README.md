@@ -2,7 +2,13 @@ NeoZoom.lua
 ---
 ### Important News
 
-Please use `NeoSplit` and `NeoVSplit` commands to create new split so this plugin will work correctly.
+Please use `NeoSplit` and `NeoVSplit` commands to create new split so this plugin will work correctly. Here is an example:
+
+```
+---- Tmux-like window-split (and jumps).
+vim.keymap.set('n', '<C-W>"', function () vim.cmd('NeoSplit') end, {nowait=true,silent=true,noremap=true})
+vim.keymap.set('n', '<C-W>%', function () vim.cmd('NeoVSplit') end, {nowait=true,silent=true,noremap=true})
+```
 
 ### DEMO
 
