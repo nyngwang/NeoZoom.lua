@@ -1,5 +1,8 @@
 NeoZoom.lua
 ---
+### Important News
+
+Please use `NeoSplit` and `NeoVSplit` commands to create new split so this plugin will work correctly.
 
 ### DEMO
 
