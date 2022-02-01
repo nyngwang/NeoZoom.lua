@@ -82,17 +82,18 @@ function M.neo_zoom()
   local cur_win = vim.api.nvim_get_current_win()
   local cur_tab = vim.api.nvim_get_current_tabpage()
 
+  for k, v in pairs(M.parent_info_from_win) do
+    if not vim.api.nvim_win_is_valid(v[1]) then -- **parent repear**
+      consume(k) end
+  end
+
   if is_a_child(cur_win) then -- should close the current win and do some restore
-    local win_p = consume(cur_win)
+    local win_p = consume(cur_win) -- `win_p` must be valid after **parent repear**
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
-    -- TODO: can use NeoNoName to "close" split
     vim.cmd('wincmd q')
 
-    if not vim.api.nvim_win_is_valid(win_p) then -- restore your mom
-      return
-    end
     -- restore info
     vim.api.nvim_set_current_win(win_p)
     vim.api.nvim_set_current_buf(buf_closed)
