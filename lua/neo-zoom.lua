@@ -105,7 +105,7 @@ function M.neo_zoom()
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
-    close_win_and_floats()
+    close_win_and_floats(cur_win)
 
     -- restore info
     vim.api.nvim_set_current_win(win_p)
