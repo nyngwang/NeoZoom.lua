@@ -2,10 +2,12 @@ local NOREF_NOERR_TRUNC = { noremap = true, silent = true, nowait = true }
 local NOREF_NOERR = { noremap = true, silent = true }
 local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, nowait = true }
 ---------------------------------------------------------------------------------------------------
-local M = {}
+local M = {
+  parent_info_from_win = {}, -- use window to search parent info {win,buf,curs,tab}
+  before_close = function() end,
+  after_close = function() end
+}
 
-M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
-M.on_close = nil
 
 local function consume(win)
   local data = M.parent_info_from_win[win]
@@ -77,7 +79,8 @@ local function pin_to_80_percent_height()
 end
 ---------------------------------------------------------------------------------------------------
 function M.setup(opts)
-  M.on_close = opts.on_close
+  M.before_close = opts.before_close
+  M.after_close = opts.after_close
 end
 
 function M.neo_zoom()
@@ -99,8 +102,9 @@ function M.neo_zoom()
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
-    if M.on_close then M.on_close() end
+    M.before_close()
     vim.cmd('wincmd q')
+    M.after_close()
 
     -- restore info
     vim.api.nvim_set_current_win(win_p)
