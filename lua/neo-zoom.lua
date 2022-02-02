@@ -5,6 +5,7 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 local M = {}
 
 M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
+M.on_close = nil
 
 local function consume(win)
   local data = M.parent_info_from_win[win]
@@ -75,6 +76,10 @@ local function pin_to_80_percent_height()
   end
 end
 ---------------------------------------------------------------------------------------------------
+function M.setup(opts)
+  M.on_close = opts.on_close
+end
+
 function M.neo_zoom()
   if (vim.bo.buftype == 'nofile'
     or vim.bo.buftype == 'terminal'
@@ -94,6 +99,7 @@ function M.neo_zoom()
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
+    if M.on_close then M.on_close() end
     vim.cmd('wincmd q')
 
     -- restore info
