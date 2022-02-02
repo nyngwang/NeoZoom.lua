@@ -2,11 +2,9 @@ local NOREF_NOERR_TRUNC = { noremap = true, silent = true, nowait = true }
 local NOREF_NOERR = { noremap = true, silent = true }
 local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, nowait = true }
 ---------------------------------------------------------------------------------------------------
-local M = {
-  parent_info_from_win = {}, -- use window to search parent info {win,buf,curs,tab}
-  before_close = function() end,
-  after_close = function() end
-}
+local M = {}
+
+M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
 
 
 local function consume(win)
@@ -77,12 +75,17 @@ local function pin_to_80_percent_height()
     vim.cmd('normal!' .. (cur_line-1) .. 'k' .. (cur_line-1) .. 'j')
   end
 end
----------------------------------------------------------------------------------------------------
-function M.setup(opts)
-  M.before_close = opts.before_close
-  M.after_close = opts.after_close
-end
 
+local function close_win_and_floats(cur_win)
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local win_config = vim.api.nvim_win_get_config(win)
+    if win_config.relative == 'win' and win_config.win == cur_win then -- close these floats first.
+      vim.api.nvim_win_close(win, false)
+    end
+  end
+  vim.cmd('wincmd q')
+end
+---------------------------------------------------------------------------------------------------
 function M.neo_zoom()
   if (vim.bo.buftype == 'nofile'
     or vim.bo.buftype == 'terminal'
@@ -102,9 +105,7 @@ function M.neo_zoom()
     local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
-    M.before_close()
-    vim.cmd('wincmd q')
-    M.after_close()
+    close_win_and_floats()
 
     -- restore info
     vim.api.nvim_set_current_win(win_p)
