@@ -99,6 +99,10 @@ function M.neo_zoom()
     if not vim.api.nvim_win_is_valid(v[1]) then -- **parent repear**
       consume(k) end
   end
+  for k, v in pairs(M.parent_info_from_win) do
+    if not vim.api.nvim_win_is_valid(k) then -- **children repear**
+      consume(k) end
+  end
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
     local win_p = consume(cur_win) -- `win_p` must be valid after **parent repear**
