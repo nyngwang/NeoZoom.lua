@@ -89,7 +89,7 @@ function M.neo_zoom()
   end
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
-    local win_p = consume(cur_win) -- `win_p` must be valid after **parent repear**
+    local win_p = M.parent_info_from_win[cur_win][1]
 
     -- close_win_and_floats(cur_win)
 
