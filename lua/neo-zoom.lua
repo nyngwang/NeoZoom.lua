@@ -47,24 +47,6 @@ local function clone_parent_info_to(from_win, to_win)
   }
 end
 
-function M.neo_vsplit()
-  local right_win = vim.api.nvim_get_current_win()
-  vim.cmd('vsplit')
-  local left_win = vim.api.nvim_get_current_win()
-  vim.cmd('wincmd l')
-  if right_win == left_win then print('FUCKING IMPOSSIBLE'); return end
-  clone_parent_info_to(right_win, left_win)
-end
-
-function M.neo_split()
-  local bottom_win = vim.api.nvim_get_current_win()
-  vim.cmd('split')
-  local top_win = vim.api.nvim_get_current_win()
-  vim.cmd('wincmd j')
-  if bottom_win == top_win then print('FUCKING IMPOSSIBLE'); return end
-  clone_parent_info_to(bottom_win, top_win)
-end
-
 local function pin_to_80_percent_height()
   local scrolloff = 7
   local cur_line = vim.fn.line('.')
@@ -106,15 +88,15 @@ function M.neo_zoom()
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
     local win_p = consume(cur_win) -- `win_p` must be valid after **parent repear**
-    local buf_closed = vim.api.nvim_get_current_buf()
     local cur_closed = vim.api.nvim_win_get_cursor(0)
 
     close_win_and_floats(cur_win)
 
-    -- restore info
     vim.api.nvim_set_current_win(win_p)
-    vim.api.nvim_set_current_buf(buf_closed)
-    vim.api.nvim_win_set_cursor(win_p, cur_closed)
+    local old_win = cur_win
+    if vim.api.nvim_win_get_buf(0) == vim.api.nvim_win_get_buf(old_win) then -- restore cursor
+      vim.api.nvim_win_set_cursor(0, cur_closed)
+    end
 
     -- TODO: should disable the zoom-in statusline color here
   elseif is_a_parent(cur_win)[1] then -- go the the first child on the closest following tabs.
@@ -134,6 +116,24 @@ function M.neo_zoom()
     -- TODO: should enable the zoom-in statusline color here
   end
   pin_to_80_percent_height()
+end
+
+function M.neo_vsplit()
+  local right_win = vim.api.nvim_get_current_win()
+  vim.cmd('vsplit')
+  local left_win = vim.api.nvim_get_current_win()
+  vim.cmd('wincmd l')
+  if right_win == left_win then print('FUCKING IMPOSSIBLE'); return end
+  clone_parent_info_to(right_win, left_win)
+end
+
+function M.neo_split()
+  local bottom_win = vim.api.nvim_get_current_win()
+  vim.cmd('split')
+  local top_win = vim.api.nvim_get_current_win()
+  vim.cmd('wincmd j')
+  if bottom_win == top_win then print('FUCKING IMPOSSIBLE'); return end
+  clone_parent_info_to(bottom_win, top_win)
 end
 
 local function setup_vim_commands()
