@@ -15,7 +15,7 @@ local function consume(win)
 end
 
 local function is_a_parent(win_test)
-  for k, v in ipairs(M.parent_info_from_win) do
+  for k, v in pairs(M.parent_info_from_win) do
     if v[1] == win_test then
       return true end
   end
@@ -24,10 +24,6 @@ end
 
 local function is_a_child(win_test)
   return M.parent_info_from_win[win_test] ~= nil
-end
-
-local function prefer_non_noname_win(win_p)
-  return 9999
 end
 
 local function clone_parent_info_to(from_win, to_win)
@@ -54,7 +50,7 @@ local function pin_to_80_percent_height()
 end
 
 local function close_win_and_floats(cur_win)
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
+  for _, win in pairs(vim.api.nvim_list_wins()) do
     local win_config = vim.api.nvim_win_get_config(win)
     if win_config.relative == 'win' and win_config.win == cur_win then -- close these floats first.
       vim.api.nvim_win_close(win, false)
@@ -95,7 +91,7 @@ function M.neo_zoom()
 
     -- TODO: should disable the zoom-in statusline color here
   elseif is_a_parent(cur_win) then -- goto any child on the closest following tabs.
-    for k, v in ipairs(M.parent_info_from_win) do
+    for k, v in pairs(M.parent_info_from_win) do
       if v[1] == cur_win
         and vim.api.nvim_buf_get_name(v[2]) ~= '' -- prefer non-`[No Name]`
         then
@@ -103,7 +99,7 @@ function M.neo_zoom()
         end
     end
     -- all children `[No Name]`, then go for it.
-    for k, v in ipairs(M.parent_info_from_win) do
+    for k, v in pairs(M.parent_info_from_win) do
       if v[1] == cur_win then
         cur_win = k
       end
