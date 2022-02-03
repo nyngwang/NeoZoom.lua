@@ -15,24 +15,28 @@ local function consume(win)
 end
 
 local function is_a_parent(win_test)
-  local MAX = 999
-  local win_closest = nil
-  local tab_n_of_closest_win = MAX
-  for k, v in pairs(M.parent_info_from_win) do
-    if (win_test == v[1]) then
-      local tab_n = vim.api.nvim_tabpage_get_number(v[4])
-      if tab_n_of_closest_win > tab_n then
-        tab_n_of_closest_win = tab_n
-        win_closest = k
-      end
-    end
+  for k, v in ipairs(M.parent_info_from_win) do
+    if v[1] == win_test then
+      return true end
   end
-  if tab_n_of_closest_win == MAX then return {false}
-  else return {true, win_closest} end
+  return false
 end
 
 local function is_a_child(win_test)
   return M.parent_info_from_win[win_test] ~= nil
+end
+
+local function prefer_non_noname_win(win_p)
+  for k, v in ipairs(M.parent_info_from_win) do
+    if v[1] == win_p
+      and vim.api.nvim_buf_get_name(v[2]) ~= '' -- prefer non-`[No Name]`
+      then return k end
+  end
+  -- all children `[No Name]`, then go for it.
+  for k, v in ipairs(M.parent_info_from_win) do
+    if v[1] == win_p then
+      return k end
+  end
 end
 
 local function clone_parent_info_to(from_win, to_win)
@@ -99,9 +103,9 @@ function M.neo_zoom()
     end
 
     -- TODO: should disable the zoom-in statusline color here
-  elseif is_a_parent(cur_win)[1] then -- goto any child on the closest following tabs.
-    local child_win_closest = is_a_parent(cur_win)[2]
-    vim.api.nvim_set_current_win(child_win_closest)
+  elseif is_a_parent(cur_win) then -- goto any child on the closest following tabs.
+    local win_c = prefer_non_noname_win(cur_win)
+    vim.api.nvim_set_current_win(win_c)
     if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
