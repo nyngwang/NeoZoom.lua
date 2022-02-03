@@ -74,8 +74,9 @@ function M.neo_zoom()
     or vim.bo.filetype == 'qf') then
     return
   end
-  local cur_win = vim.api.nvim_get_current_win()
   local cur_tab = vim.api.nvim_get_current_tabpage()
+  local cur_win = vim.api.nvim_get_current_win()
+  local cur_buf = vim.api.nvim_win_get_buf(0)
   local cur_cur = vim.api.nvim_win_get_cursor(0)
 
   for k, v in pairs(M.parent_info_from_win) do
@@ -93,8 +94,7 @@ function M.neo_zoom()
     close_win_and_floats(cur_win)
 
     vim.api.nvim_set_current_win(win_p)
-    if vim.api.nvim_win_get_buf(win_p)
-      == vim.api.nvim_win_get_buf(cur_win) then -- restore cursor
+    if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
 
@@ -102,8 +102,7 @@ function M.neo_zoom()
   elseif is_a_parent(cur_win)[1] then -- goto any child on the closest following tabs.
     local child_win_closest = is_a_parent(cur_win)[2]
     vim.api.nvim_set_current_win(child_win_closest)
-    if vim.api.nvim_win_get_buf(child_win_closest)
-      == vim.api.nvim_win_get_buf(cur_win) then -- restore cursor
+    if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
   else -- if the current win is neither parent nor child.
