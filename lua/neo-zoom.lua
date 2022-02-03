@@ -43,12 +43,7 @@ local function clone_parent_info_to(from_win, to_win)
   if M.parent_info_from_win[from_win] == nil then -- no need to clone
     return
   end
-  M.parent_info_from_win[to_win] = {
-    M.parent_info_from_win[from_win][1],
-    M.parent_info_from_win[from_win][2],
-    M.parent_info_from_win[from_win][3],
-    M.parent_info_from_win[from_win][4],
-  }
+  M.parent_info_from_win[to_win] = M.parent_info_from_win[from_win]
 end
 
 local function pin_to_80_percent_height()
