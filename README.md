@@ -2,6 +2,10 @@ NeoZoom.lua
 ---
 ### Important News
 
+**0203 update**: Now it won't close any tab, but you can close it yourself
+via (possibly many) `:q` or one `:tabclose`.
+
+
 Please use `NeoSplit` and `NeoVSplit` commands to create new split so this plugin will work correctly. Here is an example:
 
 ```
