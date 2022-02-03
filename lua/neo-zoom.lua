@@ -105,6 +105,7 @@ function M.neo_zoom()
     -- TODO: should disable the zoom-in statusline color here
   elseif is_a_parent(cur_win) then -- goto any child on the closest following tabs.
     local win_c = prefer_non_noname_win(cur_win)
+    _G.dump(win_c)
     vim.api.nvim_set_current_win(win_c)
     if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
