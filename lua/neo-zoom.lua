@@ -43,7 +43,12 @@ local function clone_parent_info_to(from_win, to_win)
   if M.parent_info_from_win[from_win] == nil then -- no need to clone
     return
   end
-  M.parent_info_from_win[to_win] = M.parent_info_from_win[from_win]
+  M.parent_info_from_win[to_win] = {
+    M.parent_info_from_win[from_win][1],
+    M.parent_info_from_win[from_win][2],
+    M.parent_info_from_win[from_win][3],
+    M.parent_info_from_win[from_win][4]
+  }
 end
 
 local function pin_to_80_percent_height()
@@ -85,6 +90,9 @@ function M.neo_zoom()
   for k, v in pairs(M.parent_info_from_win) do
     if not vim.api.nvim_win_is_valid(k) then -- **children repear**
       consume(k) end
+  end
+  for k, v in pairs(M.parent_info_from_win) do
+    M.parent_info_from_win[k][2] = vim.api.nvim_win_get_buf(k) -- update buffer
   end
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
