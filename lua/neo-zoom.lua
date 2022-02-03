@@ -6,12 +6,25 @@ local M = {}
 
 M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
 
-
 local function consume(win)
   local data = M.parent_info_from_win[win]
   -- assume data exist on object free
   M.parent_info_from_win[win] = nil
   return unpack(data)
+end
+
+local function validate_mappings()
+  for k, v in pairs(M.parent_info_from_win) do
+    if not vim.api.nvim_win_is_valid(v[1]) then -- **parent repear**
+      consume(k) end
+  end
+  for k, v in pairs(M.parent_info_from_win) do
+    if not vim.api.nvim_win_is_valid(k) then -- **children repear**
+      consume(k) end
+  end
+  for k, v in pairs(M.parent_info_from_win) do
+    M.parent_info_from_win[k][2] = vim.api.nvim_win_get_buf(k) -- update buffer
+  end
 end
 
 local function is_a_parent(win_test)
@@ -29,7 +42,7 @@ end
 local function prefer_non_noname_buf(win_p)
   for k, v in pairs(M.parent_info_from_win) do
     if v[1] == win_p
-      and #vim.api.nvim_buf_get_name(v[2]) > 0 -- prefer non-`[No Name]`
+      and vim.api.nvim_buf_get_name(v[2]) == '' -- prefer non-`[No Name]`
       then return k end
   end
   -- all children `[No Name]`, then go for it.
@@ -83,17 +96,7 @@ function M.neo_zoom()
   local cur_buf = vim.api.nvim_win_get_buf(0)
   local cur_cur = vim.api.nvim_win_get_cursor(0)
 
-  for k, v in pairs(M.parent_info_from_win) do
-    if not vim.api.nvim_win_is_valid(v[1]) then -- **parent repear**
-      consume(k) end
-  end
-  for k, v in pairs(M.parent_info_from_win) do
-    if not vim.api.nvim_win_is_valid(k) then -- **children repear**
-      consume(k) end
-  end
-  for k, v in pairs(M.parent_info_from_win) do
-    M.parent_info_from_win[k][2] = vim.api.nvim_win_get_buf(k) -- update buffer
-  end
+  validate_mappings()
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
     local win_p = M.parent_info_from_win[cur_win][1]
