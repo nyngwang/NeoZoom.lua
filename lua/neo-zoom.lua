@@ -34,9 +34,9 @@ local function prefer_non_noname_win(win_p)
   end
   -- all children `[No Name]`, then go for it.
   for k, v in ipairs(M.parent_info_from_win) do
-    if v[1] == win_p then
-      return k end
+    if v[1] == win_p then return k end
   end
+  return 9999
 end
 
 local function clone_parent_info_to(from_win, to_win)
