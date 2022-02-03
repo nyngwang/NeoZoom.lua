@@ -91,7 +91,7 @@ function M.neo_zoom()
   if is_a_child(cur_win) then -- should close the current win and do some restore
     local win_p = consume(cur_win) -- `win_p` must be valid after **parent repear**
 
-    close_win_and_floats(cur_win)
+    -- close_win_and_floats(cur_win)
 
     vim.api.nvim_set_current_win(win_p)
     if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
