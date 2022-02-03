@@ -26,6 +26,19 @@ local function is_a_child(win_test)
   return M.parent_info_from_win[win_test] ~= nil
 end
 
+local function prefer_non_noname_buf(win_p)
+  for k, v in pairs(M.parent_info_from_win) do
+    if v[1] == win_p
+      and vim.api.nvim_buf_get_name(v[2]) ~= '' -- prefer non-`[No Name]`
+      then return k end
+  end
+  -- all children `[No Name]`, then go for it.
+  for k, v in pairs(M.parent_info_from_win) do
+    if v[1] == win_p
+      then return k end
+  end
+end
+
 local function clone_parent_info_to(from_win, to_win)
   if M.parent_info_from_win[from_win] == nil then -- no need to clone
     return
@@ -91,20 +104,8 @@ function M.neo_zoom()
 
     -- TODO: should disable the zoom-in statusline color here
   elseif is_a_parent(cur_win) then -- goto any child on the closest following tabs.
-    for k, v in pairs(M.parent_info_from_win) do
-      if v[1] == cur_win
-        and vim.api.nvim_buf_get_name(v[2]) ~= '' -- prefer non-`[No Name]`
-        then
-          cur_win = k
-        end
-    end
-    -- all children `[No Name]`, then go for it.
-    for k, v in pairs(M.parent_info_from_win) do
-      if v[1] == cur_win then
-        cur_win = k
-      end
-    end
-    vim.api.nvim_set_current_win(cur_win)
+    local win_c = prefer_non_noname_buf(cur_win)
+    vim.api.nvim_set_current_win(win_c)
     if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
