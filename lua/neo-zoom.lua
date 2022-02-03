@@ -29,7 +29,7 @@ end
 local function prefer_non_noname_buf(win_p)
   for k, v in pairs(M.parent_info_from_win) do
     if v[1] == win_p
-      and #vim.fn.nvim_buf_get_name(v[2]) > 0 -- prefer non-`[No Name]`
+      and #vim.api.nvim_buf_get_name(v[2]) > 0 -- prefer non-`[No Name]`
       then return k end
   end
   -- all children `[No Name]`, then go for it.
