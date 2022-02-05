@@ -130,21 +130,21 @@ function M.neo_zoom()
 end
 
 function M.neo_vsplit()
-  local right_win = vim.api.nvim_get_current_win()
+  local win_old = vim.api.nvim_get_current_win()
   vim.cmd('vsplit')
-  local left_win = vim.api.nvim_get_current_win()
-  vim.cmd('wincmd l')
-  if right_win == left_win then print('FUCKING IMPOSSIBLE'); return end
-  clone_parent_info_to(right_win, left_win)
+  local win_new = vim.api.nvim_get_current_win()
+  if not vim.o.splitright then vim.cmd('wincmd l') end
+  if win_old == win_new then print('FUCKING IMPOSSIBLE'); return end
+  clone_parent_info_to(win_old, win_new)
 end
 
 function M.neo_split()
-  local bottom_win = vim.api.nvim_get_current_win()
+  local win_old = vim.api.nvim_get_current_win()
   vim.cmd('split')
-  local top_win = vim.api.nvim_get_current_win()
-  vim.cmd('wincmd j')
-  if bottom_win == top_win then print('FUCKING IMPOSSIBLE'); return end
-  clone_parent_info_to(bottom_win, top_win)
+  local win_new = vim.api.nvim_get_current_win()
+  if not vim.o.splitbelow then vim.cmd('wincmd j') end
+  if win_old == win_new then print('FUCKING IMPOSSIBLE'); return end
+  clone_parent_info_to(win_old, win_new)
 end
 
 local function setup_vim_commands()
