@@ -101,19 +101,21 @@ function M.neo_zoom()
 
   if is_a_child(cur_win) then -- should close the current win and do some restore
     local win_p = M.parent_info_from_win[cur_win][1]
-
+    local tab_id = vim.api.nvim_tabpage_get_number({cur_tab})
     vim.api.nvim_set_current_win(win_p)
     if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
-
+    vim.cmd(":tabc " .. tab_id)
     -- TODO: should disable the zoom-in statusline color here
   elseif is_a_parent(cur_win) then -- goto any child on the closest following tabs.
     local win_c = prefer_non_noname_buf(cur_win)
+    local tab_id = vim.api.nvim_tabpage_get_number({cur_tab})
     vim.api.nvim_set_current_win(win_c)
     if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
+    vim.cmd(":tabc " .. tab_id)
   else -- if the current win is neither parent nor child.
     vim.cmd('tab split')
     local old_win = cur_win
