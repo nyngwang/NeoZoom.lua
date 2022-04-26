@@ -7,64 +7,6 @@ local M = {}
 M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
 
 
-local function consume(win)
-  local data = M.parent_info_from_win[win]
-  -- assume data exist on object free
-  M.parent_info_from_win[win] = nil
-  return unpack(data)
-end
-
-local function validate_mappings()
-  for k, v in pairs(M.parent_info_from_win) do
-    if not vim.api.nvim_win_is_valid(v[1]) then -- **parent repear**
-      consume(k) end
-  end
-  for k, v in pairs(M.parent_info_from_win) do
-    if not vim.api.nvim_win_is_valid(k) then -- **children repear**
-      consume(k) end
-  end
-  for k, v in pairs(M.parent_info_from_win) do
-    M.parent_info_from_win[k][2] = vim.api.nvim_win_get_buf(k) -- update buffer
-  end
-end
-
-local function is_a_parent(win_test)
-  for k, v in pairs(M.parent_info_from_win) do
-    if v[1] == win_test then
-      return true end
-  end
-  return false
-end
-
-local function is_a_child(win_test)
-  return M.parent_info_from_win[win_test] ~= nil
-end
-
-local function prefer_non_noname_buf(win_p)
-  for k, v in pairs(M.parent_info_from_win) do
-    if v[1] == win_p
-      and vim.api.nvim_buf_get_name(v[2]) ~= '' -- prefer non-`[No Name]`
-      then return k end
-  end
-  -- all children `[No Name]`, then go for it.
-  for k, v in pairs(M.parent_info_from_win) do
-    if v[1] == win_p
-      then return k end
-  end
-end
-
-local function clone_parent_info_to(from_win, to_win)
-  if M.parent_info_from_win[from_win] == nil then -- no need to clone
-    return
-  end
-  M.parent_info_from_win[to_win] = {
-    M.parent_info_from_win[from_win][1],
-    M.parent_info_from_win[from_win][2],
-    M.parent_info_from_win[from_win][3],
-    M.parent_info_from_win[from_win][4]
-  }
-end
-
 local function pin_to_80_percent_height()
   local scrolloff = 7
   local cur_line = vim.fn.line('.')
@@ -75,83 +17,42 @@ local function pin_to_80_percent_height()
     vim.cmd('normal!' .. (cur_line-1) .. 'k' .. (cur_line-1) .. 'j')
   end
 end
-
-local function close_win_and_floats(cur_win)
-  for _, win in pairs(vim.api.nvim_list_wins()) do
-    local win_config = vim.api.nvim_win_get_config(win)
-    if win_config.relative == 'win' and win_config.win == cur_win then -- close these floats first.
-      vim.api.nvim_win_close(win, false)
-    end
-  end
-  vim.cmd('wincmd q')
-end
 ---------------------------------------------------------------------------------------------------
+
 function M.neo_zoom()
   if (vim.bo.buftype == 'nofile'
     or vim.bo.buftype == 'terminal'
     or vim.bo.filetype == 'qf') then
     return
   end
-  local cur_tab = vim.api.nvim_get_current_tabpage()
-  local cur_win = vim.api.nvim_get_current_win()
-  local cur_buf = vim.api.nvim_win_get_buf(0)
-  local cur_cur = vim.api.nvim_win_get_cursor(0)
+  local uis = vim.api.nvim_list_uis()[1]
+  local editor_width = uis.width
+  local editor_height = uis.height
+  local float_top = math.ceil(editor_height * 0.03 - 0.5)
+  local float_left = math.ceil(editor_width * 0.45 - 0.5)
 
-  validate_mappings()
-
-  if is_a_child(cur_win) then -- should close the current win and do some restore
-    local win_p = M.parent_info_from_win[cur_win][1]
-
-    vim.api.nvim_set_current_win(win_p)
-    if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
-      vim.api.nvim_win_set_cursor(0, cur_cur)
-    end
-
-    -- TODO: should disable the zoom-in statusline color here
-  elseif is_a_parent(cur_win) then -- goto any child on the closest following tabs.
-    local win_c = prefer_non_noname_buf(cur_win)
-    vim.api.nvim_set_current_win(win_c)
-    if vim.api.nvim_win_get_buf(0) == cur_buf then -- restore cursor
-      vim.api.nvim_win_set_cursor(0, cur_cur)
-    end
-  else -- if the current win is neither parent nor child.
-    vim.cmd('tab split')
-    local old_win = cur_win
-    cur_win = vim.api.nvim_get_current_win()
-    M.parent_info_from_win[cur_win] = {
-      old_win,
-      vim.api.nvim_get_current_buf(),
-      vim.api.nvim_win_get_cursor(0),
-      vim.api.nvim_get_current_tabpage()
-    }
-    -- TODO: should enable the zoom-in statusline color here
+  if vim.api.nvim_win_get_config(0).relative ~= '' then
+    vim.cmd('q')
+    return
   end
+
+  vim.api.nvim_open_win(0, true, {
+    relative = 'editor',
+    row = float_top,
+    col = float_left,
+    height = math.ceil(editor_height * 0.9 - 0.5),
+    width = editor_width / 2,
+    focusable = true,
+    zindex = 5,
+    border = 'double',
+  })
+
   pin_to_80_percent_height()
-end
-
-function M.neo_vsplit()
-  local win_old = vim.api.nvim_get_current_win()
-  vim.cmd('vsplit')
-  local win_new = vim.api.nvim_get_current_win()
-  if not vim.o.splitright then vim.cmd('wincmd l') end
-  if win_old == win_new then print('FUCKING IMPOSSIBLE'); return end
-  clone_parent_info_to(win_old, win_new)
-end
-
-function M.neo_split()
-  local win_old = vim.api.nvim_get_current_win()
-  vim.cmd('split')
-  local win_new = vim.api.nvim_get_current_win()
-  if not vim.o.splitbelow then vim.cmd('wincmd j') end
-  if win_old == win_new then print('FUCKING IMPOSSIBLE'); return end
-  clone_parent_info_to(win_old, win_new)
 end
 
 local function setup_vim_commands()
   vim.cmd [[
     command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
-    command! NeoVSplit lua require'neo-zoom'.neo_vsplit()
-    command! NeoSplit lua require'neo-zoom'.neo_split()
   ]]
 end
 
