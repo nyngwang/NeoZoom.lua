@@ -23,6 +23,7 @@ advantages:
 ```lua
 use {
   'nyngwang/NeoZoom.lua',
+  -- branch = 'neo-zoom-original', -- UNCOMMENT THIS, if you prefer the old one
   config = function ()
     vim.keymap.set('n', '<CR>', function ()
       vim.cmd('NeoZoomToggle')
