@@ -3,6 +3,7 @@ local NOREF_NOERR = { noremap = true, silent = true }
 local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, nowait = true }
 ---------------------------------------------------------------------------------------------------
 local M = {}
+local BUF_ON_ENTER = nil
 
 M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
 
@@ -34,10 +35,14 @@ function M.neo_zoom()
   if vim.api.nvim_win_get_config(0).relative ~= '' then
     local cur_cur = vim.api.nvim_win_get_cursor(0)
     vim.cmd('q')
-    vim.api.nvim_win_set_cursor(0, cur_cur)
-    pin_to_80_percent_height()
+    if vim.api.nvim_win_get_buf(0) == BUF_ON_ENTER then
+      vim.api.nvim_win_set_cursor(0, cur_cur)
+      pin_to_80_percent_height()
+    end
     return
   end
+
+  BUF_ON_ENTER = vim.api.nvim_win_get_buf(0)
 
   vim.api.nvim_open_win(0, true, {
     relative = 'editor',
