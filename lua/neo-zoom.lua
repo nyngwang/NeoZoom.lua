@@ -37,7 +37,6 @@ function M.neo_zoom()
     vim.cmd('q')
     if vim.api.nvim_win_get_buf(0) == BUF_ON_ENTER then
       vim.api.nvim_win_set_cursor(0, cur_cur)
-      pin_to_80_percent_height()
     end
     return
   end
