@@ -32,7 +32,10 @@ function M.neo_zoom()
   local float_left = math.ceil(editor_width * 0.45 - 0.5)
 
   if vim.api.nvim_win_get_config(0).relative ~= '' then
+    local cur_cur = vim.api.nvim_win_get_cursor(0)
     vim.cmd('q')
+    vim.api.nvim_win_set_cursor(0, cur_cur)
+    pin_to_80_percent_height()
     return
   end
 
