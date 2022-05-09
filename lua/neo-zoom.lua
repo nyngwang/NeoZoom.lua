@@ -19,6 +19,12 @@ local function pin_to_80_percent_height()
   end
 end
 ---------------------------------------------------------------------------------------------------
+function M.setup(opt)
+  M.width_ratio = opt.width_ratio ~= nil and opt.width_ratio or 0.66
+  M.height_ratio = opt.height_ratio ~= nil and opt.height_ratio or 0.9
+  M.top_ratio = opt.top_ratio ~= nil and opt.top_ratio or 0.03
+  M.left_ratio = opt.left_ratio ~= nil and opt.left_ratio or 0.32
+end
 
 function M.neo_zoom()
   if (vim.bo.buftype == 'nofile'
@@ -29,8 +35,8 @@ function M.neo_zoom()
   local uis = vim.api.nvim_list_uis()[1]
   local editor_width = uis.width
   local editor_height = uis.height
-  local float_top = math.ceil(editor_height * 0.03 + 0.5)
-  local float_left = math.ceil(editor_width * 0.68 + 0.5)
+  local float_top = math.ceil(editor_height * M.top_ratio + 0.5)
+  local float_left = math.ceil(editor_width * M.left_ratio + 0.5)
 
   if vim.api.nvim_win_get_config(0).relative ~= '' then
     local float_cur = vim.api.nvim_win_get_cursor(0)
@@ -49,8 +55,8 @@ function M.neo_zoom()
     relative = 'editor',
     row = float_top,
     col = float_left,
-    height = math.ceil(editor_height * 0.9 + 0.5),
-    width = math.ceil(editor_width / 3 * 2 + 0.5),
+    height = math.ceil(editor_height * M.height_ratio + 0.5),
+    width = math.ceil(editor_width * M.width_ratio + 0.5),
     focusable = true,
     zindex = 5,
     border = 'double',
