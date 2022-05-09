@@ -29,8 +29,8 @@ function M.neo_zoom()
   local uis = vim.api.nvim_list_uis()[1]
   local editor_width = uis.width
   local editor_height = uis.height
-  local float_top = math.ceil(editor_height * 0.03 - 0.5)
-  local float_left = math.ceil(editor_width * 0.45 - 0.5)
+  local float_top = math.ceil(editor_height * 0.03 + 0.5)
+  local float_left = math.ceil(editor_width * 0.68 + 0.5)
 
   if vim.api.nvim_win_get_config(0).relative ~= '' then
     local float_cur = vim.api.nvim_win_get_cursor(0)
@@ -50,7 +50,7 @@ function M.neo_zoom()
     row = float_top,
     col = float_left,
     height = math.ceil(editor_height * 0.9 + 0.5),
-    width = math.ceil(editor_width / 2 + 0.5),
+    width = math.ceil(editor_width / 3 * 2 + 0.5),
     focusable = true,
     zindex = 5,
     border = 'double',
