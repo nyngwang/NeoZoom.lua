@@ -5,8 +5,6 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 local M = {}
 local WIN_ON_ENTER = nil
 
-M.parent_info_from_win = {} -- use window to search parent info {win,buf,curs,tab}
-
 
 local function pin_to_80_percent_height()
   local scrolloff = 7
