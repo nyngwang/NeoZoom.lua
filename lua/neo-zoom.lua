@@ -7,7 +7,7 @@ local WIN_ON_ENTER = nil
 
 
 local function pin_to_80_percent_height()
-  local scrolloff = 7
+  local scrolloff = 13
   local cur_line = vim.fn.line('.')
   vim.cmd("normal! zt")
   if (cur_line > scrolloff) then
