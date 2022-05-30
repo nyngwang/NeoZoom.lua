@@ -22,6 +22,7 @@ function M.setup(opt)
   M.height_ratio = opt.height_ratio ~= nil and opt.height_ratio or 0.9
   M.top_ratio = opt.top_ratio ~= nil and opt.top_ratio or 0.03
   M.left_ratio = opt.left_ratio ~= nil and opt.left_ratio or 0.32
+  M.border = opt.border ~= nil and opt.border or 'double'
 end
 
 function M.neo_zoom()
@@ -57,7 +58,7 @@ function M.neo_zoom()
     width = math.ceil(editor_width * M.width_ratio + 0.5),
     focusable = true,
     zindex = 5,
-    border = 'double',
+    border = M.border,
   })
 
   pin_to_80_percent_height()
