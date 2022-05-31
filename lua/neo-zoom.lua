@@ -27,7 +27,7 @@ end
 
 function M.neo_zoom()
   if (vim.bo.buftype == 'nofile'
-    or vim.bo.buftype == 'terminal'
+    or (vim.bo.buftype == 'terminal' and vim.api.nvim_win_get_config(0).relative == '')
     or vim.bo.filetype == 'qf') then
     return
   end
