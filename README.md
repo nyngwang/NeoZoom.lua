@@ -21,6 +21,8 @@ advantages:
 
 
 ```lua
+local NOREF_NOERR_TRUNC = { noremap = true, silent = true, nowait = true }
+
 use {
   'nyngwang/NeoZoom.lua',
   -- branch = 'neo-zoom-original', -- UNCOMMENT THIS, if you prefer the old one
