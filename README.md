@@ -37,6 +37,24 @@ use {
     vim.keymap.set('n', '<CR>', function ()
       vim.cmd('NeoZoomToggle')
     end, NOREF_NOERR_TRUNC)
+
+    -- My setup (This requires NeoNoName.lua, and optionally NeoWell.lua)
+    vim.keymap.set('n', '<CR>', function ()
+      -- Pop-up Effect
+      if vim.api.nvim_win_get_config(0).relative == '' then
+        cur_buf = vim.fn.bufnr()
+        if vim.fn.bufname() ~= '' then
+          vim.cmd('NeoNoName')
+        end
+        vim.cmd('NeoZoomToggle')
+        vim.api.nvim_set_current_buf(cur_buf)
+        return
+      end
+      vim.cmd('NeoZoomToggle')
+      vim.api.nvim_set_current_buf(cur_buf)
+      cur_buf = nil
+      -- vim.cmd('NeoWellJump') -- you can safely remove this line.
+    end, NOREF_NOERR_TRUNC)
   end
 }
 ```
