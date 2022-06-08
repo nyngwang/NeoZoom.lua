@@ -26,9 +26,13 @@ function M.setup(opt)
 end
 
 function M.neo_zoom()
-  if (vim.bo.buftype == 'nofile'
-    or (vim.bo.buftype == 'terminal' and vim.api.nvim_win_get_config(0).relative == '')
-    or vim.bo.filetype == 'qf') then
+  if (
+    vim.bo.buftype == 'nofile'
+    or vim.bo.filetype == 'fzf' -- for fzf-lua
+    or vim.bo.filetype == 'qf' -- for NeoWell
+    or (vim.bo.buftype == 'terminal'
+      and vim.api.nvim_win_get_config(0).relative == '')
+  ) then
     return
   end
   local uis = vim.api.nvim_list_uis()[1]
