@@ -66,6 +66,7 @@ function M.neo_zoom()
   })
 
   pin_to_80_percent_height()
+  pin_to_80_percent_height()
 end
 
 local function setup_vim_commands()
