@@ -5,17 +5,6 @@ local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, now
 local M = {}
 local WIN_ON_ENTER = nil
 
-
-local function pin_to_80_percent_height()
-  local scrolloff = 13
-  local cur_line = vim.fn.line('.')
-  vim.cmd("normal! zt")
-  if (cur_line > scrolloff) then
-    vim.cmd("normal! " .. scrolloff .. "k" .. scrolloff .. "j")
-  else
-    vim.cmd('normal!' .. (cur_line-1) .. 'k' .. (cur_line-1) .. 'j')
-  end
-end
 ---------------------------------------------------------------------------------------------------
 function M.setup(opt)
   M.width_ratio = opt.width_ratio ~= nil and opt.width_ratio or 0.66
@@ -64,9 +53,6 @@ function M.neo_zoom()
     zindex = 5,
     border = M.border,
   })
-
-  pin_to_80_percent_height()
-  pin_to_80_percent_height()
 end
 
 local function setup_vim_commands()
