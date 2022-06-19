@@ -29,14 +29,14 @@ function M.neo_zoom()
   local editor_height = uis.height
   local float_top = math.ceil(editor_height * M.top_ratio + 0.5)
   local float_left = math.ceil(editor_width * M.left_ratio + 0.5)
+  local cur_cur = vim.api.nvim_win_get_cursor(0)
+  local cur_buf = vim.api.nvim_win_get_buf(0)
 
   if vim.api.nvim_win_get_config(0).relative ~= '' then
-    local float_cur = vim.api.nvim_win_get_cursor(0)
-    local float_buf = vim.api.nvim_win_get_buf(0)
     vim.cmd('q')
     vim.api.nvim_set_current_win(WIN_ON_ENTER)
-    if float_buf == vim.api.nvim_win_get_buf(WIN_ON_ENTER) then
-      vim.api.nvim_win_set_cursor(0, float_cur)
+    if cur_buf == vim.api.nvim_win_get_buf(WIN_ON_ENTER) then
+      vim.api.nvim_win_set_cursor(0, cur_cur)
     end
     return
   end
