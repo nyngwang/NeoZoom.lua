@@ -3,7 +3,9 @@ local NOREF_NOERR = { noremap = true, silent = true }
 local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, nowait = true }
 ---------------------------------------------------------------------------------------------------
 local M = {}
+local NORMAL_EXIT = false
 local WIN_ON_ENTER = nil
+local FLOAT_WIN = nil
 
 ---------------------------------------------------------------------------------------------------
 
@@ -50,17 +52,21 @@ function M.neo_zoom()
   local cur_buf = vim.api.nvim_win_get_buf(0)
 
   if vim.api.nvim_win_get_config(0).relative ~= '' then
+    NORMAL_EXIT = true
     vim.cmd('q')
     vim.api.nvim_set_current_win(WIN_ON_ENTER)
     if cur_buf == vim.api.nvim_win_get_buf(WIN_ON_ENTER) then
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
+    WIN_ON_ENTER = nil
+    FLOAT_WIN = nil
+    NORMAL_EXIT = false
     return
   end
 
   WIN_ON_ENTER = vim.api.nvim_get_current_win()
 
-  vim.api.nvim_open_win(0, true, {
+  FLOAT_WIN = vim.api.nvim_open_win(0, true, {
     relative = 'editor',
     row = float_top,
     col = float_left,
@@ -76,6 +82,20 @@ local function setup_vim_commands()
   vim.cmd [[
     command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
   ]]
+  vim.api.nvim_create_autocmd({ 'WinEnter' }, {
+    pattern = '*',
+    callback = function ()
+      if -- jump out of zoom-in win
+        vim.api.nvim_win_get_config(0).relative == '' -- not on zoom-in window
+        and (FLOAT_WIN ~= nil and not NORMAL_EXIT) -- zoom-in win exists
+        then
+        vim.api.nvim_set_current_win(FLOAT_WIN)
+        vim.cmd('q')
+        FLOAT_WIN = nil
+        WIN_ON_ENTER = nil
+      end
+    end
+  })
 end
 
 setup_vim_commands()
