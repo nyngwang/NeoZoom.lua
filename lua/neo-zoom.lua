@@ -89,10 +89,12 @@ local function setup_vim_commands()
         vim.api.nvim_win_get_config(0).relative == '' -- not on zoom-in window
         and (FLOAT_WIN ~= nil and not NORMAL_EXIT) -- zoom-in win exists
         then
+        vim.api.nvim_win_set_buf(WIN_ON_ENTER, vim.api.nvim_win_get_buf(FLOAT_WIN))
         vim.api.nvim_set_current_win(FLOAT_WIN)
         vim.cmd('q')
         FLOAT_WIN = nil
         WIN_ON_ENTER = nil
+        NORMAL_EXIT = false
       end
     end
   })
