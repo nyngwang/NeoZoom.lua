@@ -21,7 +21,6 @@ advantages:
 
 
 ```lua
-local NOREF_NOERR_TRUNC = { noremap = true, silent = true, nowait = true }
 
 use {
   'nyngwang/NeoZoom.lua',
@@ -37,9 +36,8 @@ use {
       --   'fzf', 'qf', 'dashboard'
       -- }
     }
-    vim.keymap.set('n', '<CR>', function ()
-      vim.cmd('NeoZoomToggle')
-    end, NOREF_NOERR_TRUNC)
+    local NOREF_NOERR_TRUNC = { silent = true, nowait = true }
+    vim.keymap.set('n', '<CR>', require("neo-zoom").neo_zoom, NOREF_NOERR_TRUNC)
 
     -- My setup (This requires NeoNoName.lua, and optionally NeoWell.lua)
     local cur_buf = nil
