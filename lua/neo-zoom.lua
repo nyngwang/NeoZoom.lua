@@ -30,6 +30,10 @@ end
 
 ---------------------------------------------------------------------------------------------------
 function M.setup(opt)
+  if opt == nil then
+    opt = {}
+  end
+  
   M.width_ratio = opt.width_ratio ~= nil and opt.width_ratio or 0.66
   M.height_ratio = opt.height_ratio ~= nil and opt.height_ratio or 0.9
   M.top_ratio = opt.top_ratio ~= nil and opt.top_ratio or 0.03
