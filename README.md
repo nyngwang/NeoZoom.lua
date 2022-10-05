@@ -16,9 +16,8 @@ if you encounter any error try copy-paste it again. See #33 for more details.
 
 ---
 
-> Wait, What? But I want to use the old one!
-
-The old one can be found on branch `neo-zoom-original`!
+The original idea of this project can be found on branch `neo-zoom-original`.
+But I won't fix any bug on that anymore.
 
 ---
 
