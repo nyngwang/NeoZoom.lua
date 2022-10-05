@@ -1,6 +1,10 @@
 NeoZoom.lua
 ---
 
+### DEMO
+
+https://user-images.githubusercontent.com/24765272/194027917-dedc162c-f017-4722-9468-c4ddddbedd57.mov
+
 
 ### Breaking Changes
 
@@ -70,8 +74,3 @@ use {
 ```
 
 Change `<CR>` to whatever shortcut you like~
-
-
-### DEMO
-
-will be uploaded
