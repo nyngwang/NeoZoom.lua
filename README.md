@@ -22,10 +22,14 @@ But I won't fix any bug on that anymore.
 ---
 
 advantages:
-1. code down to 60 lines
-2. no state, so no overhead (compared to the original version, see branches)
-3. just one command left, `NeoZoomToggle`
+1. Lightweight(< 100 lines): only increase 0.0001ms startup time.
+2. Customizable UIs.
+3. Only add one command: `NeoZoomToggle`.
+4. Easy to work with your existing plugins:
+- exposing `require('neo-zoom').FLOAT_WIN` a handle to the current floating window (you should check the validity yourself)
+- exposing `require('neo-zoom').WIN_ON_ENTER` a handle to the window before zoom (you should check the validity yourself)
 
+note: Change `<CR>` to whatever shortcut you like~
 
 ```lua
 
@@ -75,4 +79,3 @@ use {
 }
 ```
 
-Change `<CR>` to whatever shortcut you like~
