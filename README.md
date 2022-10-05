@@ -62,6 +62,8 @@ use {
         vim.api.nvim_set_current_buf(cur_buf)
         return
       end
+      -- don't zoom-in on floating win.
+      if vim.api.nvim_win_get_config(0).relative ~= '' then return end
       cur_buf = vim.api.nvim_get_current_buf()
       vim.cmd('NeoZoomToggle')
       vim.cmd('wincmd p')
