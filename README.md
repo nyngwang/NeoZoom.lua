@@ -45,6 +45,7 @@ use {
       -- exclude_filetype = {
       --   'fzf', 'qf', 'dashboard'
       -- }
+      -- scrolloff_on_zoom = 13, -- offset to the top-border.
     }
     local NOREF_NOERR_TRUNC = { silent = true, nowait = true }
     vim.keymap.set('n', '<CR>', require("neo-zoom").neo_zoom, NOREF_NOERR_TRUNC)
