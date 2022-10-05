@@ -25,6 +25,8 @@ local function pin_to_scrolloff()
   vim.cmd('normal! zt')
   if (cur_line > scrolloff) then
     vim.cmd('normal! ' .. scrolloff .. 'k' .. scrolloff .. 'j')
+  else
+    vim.cmd('normal! ' .. (cur_line-1) .. 'k' .. (cur_line-1) .. 'j')
   end
 end
 
