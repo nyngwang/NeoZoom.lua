@@ -2,9 +2,13 @@ NeoZoom.lua
 ---
 
 
-### News: A Breaking Change(ABC)
+### Breaking Changes
 
-TL;DR: Using floating window instead of vim-tab to simulate "zoom-in".
+- 2022/10/05:
+  - I just updated the example setup(`keymap.set(...)` part) in README.md,
+if you encounter any error try copy-paste it again. See #33 for more details.
+- ~2022/10/05:
+  - Using floating window instead of vim-tab to simulate "zoom-in".
 
 ---
 
