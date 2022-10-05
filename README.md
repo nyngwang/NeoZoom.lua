@@ -32,7 +32,9 @@ advantages:
 
 use {
   'nyngwang/NeoZoom.lua',
-  -- branch = 'neo-zoom-original', -- UNCOMMENT THIS, if you prefer the old one
+  requires = {
+    'nyngwang/NeoNoName.lua' -- you will need this if you want to use the keymap sample below.
+  },
   config = function ()
     require('neo-zoom').setup { -- use the defaults or UNCOMMENT and change any one to overwrite
       -- left_ratio = 0.2,
