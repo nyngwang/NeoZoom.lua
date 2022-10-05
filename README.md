@@ -41,27 +41,25 @@ use {
 
     -- My setup (This requires NeoNoName.lua, and optionally NeoWell.lua)
     local cur_buf = nil
-    local cur_cur = nil
     vim.keymap.set('n', '<CR>', function ()
-      -- Pop-up Effect
-      if vim.api.nvim_win_get_config(0).relative == '' then
-        cur_buf = vim.fn.bufnr()
-        cur_cur = vim.api.nvim_win_get_cursor(0)
-        if vim.fn.bufname() ~= '' then
-          vim.cmd('NeoNoName')
-        end
+      if require('neo-zoom').FLOAT_WIN ~= nil
+        and vim.api.nvim_win_is_valid(require('neo-zoom').FLOAT_WIN) then
         vim.cmd('NeoZoomToggle')
         vim.api.nvim_set_current_buf(cur_buf)
-        vim.api.nvim_win_set_cursor(0, cur_cur)
-        vim.cmd("normal! zt")
-        vim.cmd("normal! 7k7j")
         return
       end
+      cur_buf = vim.api.nvim_get_current_buf()
       vim.cmd('NeoZoomToggle')
-      vim.api.nvim_set_current_buf(cur_buf)
-      cur_buf = nil
-      cur_cur = nil
-      -- vim.cmd('NeoWellJump') -- you can safely remove this line.
+      vim.cmd('wincmd p')
+      local try_get_no_name = require('neo-no-name').get_current_or_first_valid_listed_no_name_buf()
+      if try_get_no_name ~= nil then
+        vim.api.nvim_set_current_buf(try_get_no_name)
+      else
+        vim.cmd('NeoNoName')
+      end
+      vim.cmd('wincmd p')
+      -- Post pop-up commands
+      -- vim.cmd('NeoWellJump')
     end, NOREF_NOERR_TRUNC)
   end
 }

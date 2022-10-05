@@ -1,11 +1,6 @@
-local NOREF_NOERR_TRUNC = { noremap = true, silent = true, nowait = true }
-local NOREF_NOERR = { noremap = true, silent = true }
-local EXPR_NOREF_NOERR_TRUNC = { expr = true, noremap = true, silent = true, nowait = true }
----------------------------------------------------------------------------------------------------
 local M = {}
-local NORMAL_EXIT = false
-local WIN_ON_ENTER = nil
-local FLOAT_WIN = nil
+M.WIN_ON_ENTER = nil
+M.FLOAT_WIN = nil
 
 ---------------------------------------------------------------------------------------------------
 
@@ -24,6 +19,15 @@ local function _add_table(table, ts)
   end
 end
 
+local function pin_to_scrolloff()
+  local scrolloff = M.scrolloff_on_zoom
+  local cur_line = vim.fn.line('.')
+  vim.cmd('normal! zt')
+  if (cur_line > scrolloff) then
+    vim.cmd('normal! ' .. scrolloff .. 'k' .. scrolloff .. 'j')
+  end
+end
+
 ---------------------------------------------------------------------------------------------------
 function M.setup(opt)
   M.width_ratio = opt.width_ratio ~= nil and opt.width_ratio or 0.66
@@ -33,6 +37,7 @@ function M.setup(opt)
   M.border = opt.border ~= nil and opt.border or 'double'
   M.filetype_exclude = opt.filetype_exclude ~= nil and
     _add_table(opt.filetype_exclude, { 'fzf', 'qf', 'dashboard' }) or { 'fzf', 'qf', 'dashboard' }
+  M.scrolloff_on_zoom = opt.scrolloff_on_zoom ~= nil and opt.scrolloff_on_zoom or 13
 end
 
 function M.neo_zoom()
@@ -51,22 +56,21 @@ function M.neo_zoom()
   local cur_cur = vim.api.nvim_win_get_cursor(0)
   local cur_buf = vim.api.nvim_win_get_buf(0)
 
-  if vim.api.nvim_win_get_config(0).relative ~= '' then
-    NORMAL_EXIT = true
+  if M.FLOAT_WIN ~= nil
+    and vim.api.nvim_win_is_valid(M.FLOAT_WIN) then
+    vim.api.nvim_set_current_win(M.FLOAT_WIN)
     vim.cmd('q')
-    vim.api.nvim_set_current_win(WIN_ON_ENTER)
-    if cur_buf == vim.api.nvim_win_get_buf(WIN_ON_ENTER) then
+    if cur_buf == vim.api.nvim_win_get_buf(M.WIN_ON_ENTER) then
       vim.api.nvim_win_set_cursor(0, cur_cur)
     end
-    WIN_ON_ENTER = nil
-    FLOAT_WIN = nil
-    NORMAL_EXIT = false
+    M.WIN_ON_ENTER = nil
+    M.FLOAT_WIN = nil
     return
   end
 
-  WIN_ON_ENTER = vim.api.nvim_get_current_win()
+  M.WIN_ON_ENTER = vim.api.nvim_get_current_win()
 
-  FLOAT_WIN = vim.api.nvim_open_win(0, true, {
+  M.FLOAT_WIN = vim.api.nvim_open_win(0, true, {
     relative = 'editor',
     row = float_top,
     col = float_left,
@@ -76,28 +80,16 @@ function M.neo_zoom()
     zindex = 5,
     border = M.border,
   })
+
+  vim.api.nvim_set_current_buf(cur_buf)
+
+  pin_to_scrolloff()
 end
 
 local function setup_vim_commands()
   vim.cmd [[
     command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
   ]]
-  vim.api.nvim_create_autocmd({ 'WinEnter' }, {
-    pattern = '*',
-    callback = function ()
-      if -- jump out of zoom-in win
-        vim.api.nvim_win_get_config(0).relative == '' -- not on zoom-in window
-        and (FLOAT_WIN ~= nil and not NORMAL_EXIT) -- zoom-in win exists
-        then
-        vim.api.nvim_win_set_buf(WIN_ON_ENTER, vim.api.nvim_win_get_buf(FLOAT_WIN))
-        vim.api.nvim_set_current_win(FLOAT_WIN)
-        vim.cmd('q')
-        FLOAT_WIN = nil
-        WIN_ON_ENTER = nil
-        NORMAL_EXIT = false
-      end
-    end
-  })
 end
 
 setup_vim_commands()
