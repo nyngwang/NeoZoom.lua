@@ -61,10 +61,8 @@ function M.neo_zoom()
   if M.FLOAT_WIN ~= nil
     and vim.api.nvim_win_is_valid(M.FLOAT_WIN) then
     vim.api.nvim_set_current_win(M.FLOAT_WIN)
-    local cur_cur = vim.api.nvim_win_get_cursor(0)
     vim.cmd('q')
     vim.api.nvim_set_current_win(M.WIN_ON_ENTER)
-    vim.api.nvim_win_set_cursor(0, cur_cur)
     
     M.WIN_ON_ENTER = nil
     M.FLOAT_WIN = nil
