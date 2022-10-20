@@ -45,7 +45,7 @@ use {
       -- width_ratio = 0.67,
       -- height_ratio = 0.9,
       -- border = 'double',
-      -- exclude_filetype = {
+      -- exclude_filetypes = {
       --   'fzf', 'qf', 'dashboard'
       -- }
       -- scrolloff_on_zoom = 13, -- offset to the top-border.
