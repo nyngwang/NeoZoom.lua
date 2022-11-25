@@ -17,6 +17,8 @@ local function _add_table(table, ts)
   for _, v in ipairs(ts) do
     table[#table + 1] = v
   end
+  
+  return table
 end
 
 local function pin_to_scrolloff()
