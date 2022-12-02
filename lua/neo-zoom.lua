@@ -51,7 +51,7 @@ function M.neo_zoom()
         and vim.api.nvim_win_get_config(0).relative == '')
       or _in_table(M.exclude_filetypes, vim.bo.filetype)
     ) then
-    return
+    return false
   end
   local uis = vim.api.nvim_list_uis()[1]
   local editor_width = uis.width
@@ -68,7 +68,7 @@ function M.neo_zoom()
     
     M.WIN_ON_ENTER = nil
     M.FLOAT_WIN = nil
-    return
+    return true
   end
 
   M.WIN_ON_ENTER = vim.api.nvim_get_current_win()
@@ -87,6 +87,7 @@ function M.neo_zoom()
   vim.api.nvim_set_current_buf(cur_buf)
 
   pin_to_scrolloff()
+  return true
 end
 
 local function setup_vim_commands()
