@@ -10,8 +10,6 @@ local left_ratio = 0.32
 local border = 'double'
 local exclude = { 'fzf', 'qf' }
 local _default_scrolloff = 13
--- mappings: zoom_win -> original_win
-local zoom_book = {}
 
 
 ---------------------------------------------------------------------------------------------------
@@ -23,10 +21,11 @@ function M.setup(opt)
   M.top_ratio = opt.top_ratio or top_ratio
   M.left_ratio = opt.left_ratio or left_ratio
   M.border = opt.border or border
-  M.exclude = table_add_values(exclude, type(opt.exclude_filetypes) == 'table' or {})
-  M.exclude = table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' or {})
+  M.exclude = table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
+  M.exclude = table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
 
-  zoom_book = {}
+  -- mappings: zoom_win -> original_win
+  M.zoom_book = {}
 end
 
 
@@ -34,7 +33,7 @@ function M.did_zoom(tabpage)
   if not tabpage then tabpage = 0 end
   local cur_tab = vim.api.nvim_get_current_tabpage()
 
-  for z, w in ipairs(zoom_book) do
+  for z, w in pairs(M.zoom_book) do
     if vim.api.nvim_win_get_tabpage(w) == cur_tab then
       return true, z
     end
@@ -45,22 +44,21 @@ end
 
 
 function M.neo_zoom(scrolloff)
+  local did_zoom, z = M.did_zoom()
   if -- did zoom then should zoom out anyway regardless it's blabla type.
-    M.did_zoom() then
-    local z = M.did_zoom()[2]
-
+    did_zoom then
     -- try close the floating window.
     if vim.api.nvim_win_is_valid(z) then
       vim.api.nvim_set_current_win(z)
       vim.cmd('q')
 
       -- try zoom out.
-      if vim.api.nvim_win_is_valid(zoom_book[z]) then
-        vim.api.nvim_set_current_win(zoom_book[z])
+      if vim.api.nvim_win_is_valid(M.zoom_book[z]) then
+        vim.api.nvim_set_current_win(M.zoom_book[z])
       end
     end
 
-    zoom_book[z] = nil
+    M.zoom_book[z] = nil
     return
   end
 
@@ -82,7 +80,7 @@ function M.neo_zoom(scrolloff)
   local float_top = math.ceil(editor.height * M.top_ratio + 0.5)
   local float_left = math.ceil(editor.width * M.left_ratio + 0.5)
 
-  zoom_book[
+  M.zoom_book[
     vim.api.nvim_open_win(0, true, {
       relative = 'editor',
       row = float_top,
