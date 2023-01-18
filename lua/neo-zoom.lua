@@ -8,7 +8,7 @@ local height_ratio = 0.9
 local top_ratio = 0.03
 local left_ratio = 0.32
 local border = 'double'
-local exclude = { 'fzf', 'qf' }
+local exclude = { 'lspinfo', 'mason', 'lazy', 'fzf' }
 local _default_scrolloff = 13
 
 

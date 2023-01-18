@@ -46,7 +46,7 @@ use {
       -- left_ratio = 0.225,
       -- width_ratio = 0.775,
       -- height_ratio = 0.925,
-      exclude_filetypes = { 'mason', 'lspinfo', 'qf' },
+      -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
       exclude_buftypes = { 'terminal' },
     }
     vim.keymap.set('n', '<CR>', function ()
