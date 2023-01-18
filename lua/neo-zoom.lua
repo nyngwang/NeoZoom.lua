@@ -1,94 +1,102 @@
+local value_in_table = require('myutils').value_in_table
+local table_add_values = require('myutils').table_add_values
+local add_scrolloff = require('myutils').add_scrolloff
 local M = {}
-M.WIN_ON_ENTER = nil
-M.FLOAT_WIN = nil
-
 ---------------------------------------------------------------------------------------------------
+local width_ratio = 0.66
+local height_ratio = 0.9
+local top_ratio = 0.03
+local left_ratio = 0.32
+local border = 'double'
+local exclude = { 'fzf', 'qf' }
+local _default_scrolloff = 13
 
-local function _in_table(table, t)
-  for _, v in ipairs(table) do
-    if v == t then
-      return true
-    end
-  end
-  return false
-end
-
-local function _add_table(table, ts)
-  for _, v in ipairs(ts) do
-    table[#table + 1] = v
-  end
-  
-  return table
-end
-
-local function pin_to_scrolloff()
-  local scrolloff = M.scrolloff_on_zoom
-  local cur_line = vim.fn.line('.')
-  vim.cmd('normal! zt')
-  if (cur_line > scrolloff) then
-    vim.cmd('normal! ' .. scrolloff .. 'k' .. scrolloff .. 'j')
-  else
-    vim.cmd('normal! ' .. (cur_line-1) .. 'k' .. (cur_line-1) .. 'j')
-  end
-end
 
 ---------------------------------------------------------------------------------------------------
 function M.setup(opt)
-  if opt == nil then opt = {} end
-  M.width_ratio = opt.width_ratio ~= nil and opt.width_ratio or 0.66
-  M.height_ratio = opt.height_ratio ~= nil and opt.height_ratio or 0.9
-  M.top_ratio = opt.top_ratio ~= nil and opt.top_ratio or 0.03
-  M.left_ratio = opt.left_ratio ~= nil and opt.left_ratio or 0.32
-  M.border = opt.border ~= nil and opt.border or 'double'
-  M.exclude_filetypes = opt.exclude_filetypes ~= nil and
-    _add_table(opt.exclude_filetypes, { 'fzf', 'qf', 'dashboard' }) or { 'fzf', 'qf', 'dashboard' }
-  M.scrolloff_on_zoom = opt.scrolloff_on_zoom ~= nil and opt.scrolloff_on_zoom or 13
+  if not opt then opt = {} end
+
+  M.width_ratio = opt.width_ratio or width_ratio
+  M.height_ratio = opt.height_ratio or height_ratio
+  M.top_ratio = opt.top_ratio or top_ratio
+  M.left_ratio = opt.left_ratio or left_ratio
+  M.border = opt.border or border
+  M.exclude = table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
+  M.exclude = table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
+
+  -- mappings: zoom_win -> original_win
+  M.zoom_book = {}
 end
 
-function M.neo_zoom()
-  if (
-      (vim.bo.buftype == 'terminal'
-        and vim.api.nvim_win_get_config(0).relative == '')
-      or _in_table(M.exclude_filetypes, vim.bo.filetype)
-    ) then
-    return false
-  end
-  local uis = vim.api.nvim_list_uis()[1]
-  local editor_width = uis.width
-  local editor_height = uis.height
-  local float_top = math.ceil(editor_height * M.top_ratio + 0.5)
-  local float_left = math.ceil(editor_width * M.left_ratio + 0.5)
-  local cur_buf = vim.api.nvim_win_get_buf(0)
 
-  if M.FLOAT_WIN ~= nil
-    and vim.api.nvim_win_is_valid(M.FLOAT_WIN) then
-    vim.api.nvim_set_current_win(M.FLOAT_WIN)
-    vim.cmd('q')
-    vim.api.nvim_set_current_win(M.WIN_ON_ENTER)
-    
-    M.WIN_ON_ENTER = nil
-    M.FLOAT_WIN = nil
-    return true
+function M.did_zoom(tabpage)
+  if not tabpage then tabpage = 0 end
+  local cur_tab = vim.api.nvim_get_current_tabpage()
+
+  for z, w in pairs(M.zoom_book) do
+    if vim.api.nvim_win_get_tabpage(w) == cur_tab then
+      return true, z
+    end
   end
 
-  M.WIN_ON_ENTER = vim.api.nvim_get_current_win()
-
-  M.FLOAT_WIN = vim.api.nvim_open_win(0, true, {
-    relative = 'editor',
-    row = float_top,
-    col = float_left,
-    height = math.ceil(editor_height * M.height_ratio + 0.5),
-    width = math.ceil(editor_width * M.width_ratio + 0.5),
-    focusable = true,
-    zindex = 5,
-    border = M.border,
-  })
-
-  vim.api.nvim_set_current_buf(cur_buf)
-
-  pin_to_scrolloff()
-  return true
+  return false
 end
+
+
+function M.neo_zoom(scrolloff)
+  local did_zoom, z = M.did_zoom()
+  if -- did zoom then should zoom out anyway regardless it's blabla type.
+    did_zoom then
+    -- try close the floating window.
+    if vim.api.nvim_win_is_valid(z) then
+      vim.api.nvim_set_current_win(z)
+      vim.cmd('q')
+
+      -- try zoom out.
+      if vim.api.nvim_win_is_valid(M.zoom_book[z]) then
+        vim.api.nvim_set_current_win(M.zoom_book[z])
+      end
+    end
+
+    M.zoom_book[z] = nil
+    return
+  end
+
+  -- deal with case: did not zoom.
+
+  if value_in_table(M.exclude, vim.bo.filetype)
+    or value_in_table(M.exclude, vim.bo.buftype) then
+    return
+  end
+
+
+  -- can zoom.
+  if not scrolloff then
+    scrolloff = _default_scrolloff
+  end
+  local buf_on_zoom = vim.api.nvim_win_get_buf(0)
+  local win_on_zoom = vim.api.nvim_get_current_win()
+  local editor = vim.api.nvim_list_uis()[1]
+  local float_top = math.ceil(editor.height * M.top_ratio + 0.5)
+  local float_left = math.ceil(editor.width * M.left_ratio + 0.5)
+
+  M.zoom_book[
+    vim.api.nvim_open_win(0, true, {
+      relative = 'editor',
+      row = float_top,
+      col = float_left,
+      height = math.ceil(editor.height * M.height_ratio + 0.5),
+      width = math.ceil(editor.width * M.width_ratio + 0.5),
+      focusable = true,
+      zindex = 5,
+      border = M.border,
+    })
+  ] = win_on_zoom
+
+  vim.api.nvim_set_current_buf(buf_on_zoom)
+  add_scrolloff(scrolloff)
+end
+
 
 local function setup_vim_commands()
   vim.cmd [[
@@ -97,5 +105,6 @@ local function setup_vim_commands()
 end
 
 setup_vim_commands()
+
 
 return M
