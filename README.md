@@ -1,83 +1,70 @@
 NeoZoom.lua
 ---
 
+NeoZoom.lua aims to help you focus and maybe protect your left-rotated neck.
+
+
 ### DEMO
 
-https://user-images.githubusercontent.com/24765272/194027917-dedc162c-f017-4722-9468-c4ddddbedd57.mov
+TBU.
 
 
-### Breaking Changes
+### How it works
 
-- 2022/10/05:
-  - I just updated the example setup(`keymap.set(...)` part) in README.md,
-if you encounter any error try copy-paste it again. See #33 for more details.
-- ~2022/10/05:
-  - Using floating window instead of vim-tab to simulate "zoom-in".
+The idea is simple: toggle your current window into a floating one, so you can:
 
----
+1. keep you original window layout **intact**.
+2. keep your tabpage(s) **intact**.
+    - if you know how to use tabpages then this is a good news.
+    - if you don't know how to use tabpages... well, now you don't have to close out-of-use ones. So a good news too.
+3. keep your neck **intact**. Oops, this is intended to be a joke.
 
-The original idea of this project can be found on branch `neo-zoom-original`.
-But I won't fix any bug on that anymore.
 
----
+This project now has experienced three iterations (:tada:),
+you can find the original idea(first iter.) on branch `neo-zoom-original`,
+which I won't fix any bug on that anymore.
 
-advantages:
-1. Lightweight(< 100 lines): only increase 0.0001ms startup time.
-2. Customizable UIs.
-3. Only add one command: `NeoZoomToggle`.
-4. Easy to work with your existing plugins:
-- exposing `require('neo-zoom').FLOAT_WIN` a handle to the current floating window (you should check the validity yourself)
-- exposing `require('neo-zoom').WIN_ON_ENTER` a handle to the window before zoom (you should check the validity yourself)
+### Features
 
-note: Change `<CR>` to whatever shortcut you like~
+- Only one command: `NeoZoomToggle`.
+- Some APIs to help you do customization:
+  - `M.neo_zoom(scrolloff=13)` by passing a custom number `scrolloff`, you can have different scrolloff on zoom.
+  - `M.did_zoom(tabpage=0)` by passing a number `tabpage`, you can check for whether there is zoom-in window on `tabpage`.
+
+
+### `keymap.set` Example
+
+note: if you're using `lazy.nvim` then simply replace `requires` with `dependencies`.
 
 ```lua
-
 use {
   'nyngwang/NeoZoom.lua',
-  requires = {
-    'nyngwang/NeoNoName.lua' -- you will need this if you want to use the keymap sample below.
-  },
+  requires = { 'nyngwang/NeoNoName.lua' }, -- this is only required if you want the `keymap` below.
   config = function ()
-    require('neo-zoom').setup { -- use the defaults or UNCOMMENT and change any one to overwrite
-      -- left_ratio = 0.2,
-      -- top_ratio = 0.03,
-      -- width_ratio = 0.67,
-      -- height_ratio = 0.9,
-      -- border = 'double',
-      -- exclude_filetypes = {
-      --   'fzf', 'qf', 'dashboard'
-      -- }
-      -- scrolloff_on_zoom = 13, -- offset to the top-border.
+    require('neo-zoom').setup {
+      -- top_ratio = 0,
+      -- left_ratio = 0.225,
+      -- width_ratio = 0.775,
+      -- height_ratio = 0.925,
+      exclude_filetypes = { 'mason', 'lspinfo', 'qf' },
+      exclude_buftypes = { 'terminal' },
     }
-    local NOREF_NOERR_TRUNC = { silent = true, nowait = true }
-    vim.keymap.set('n', '<CR>', require("neo-zoom").neo_zoom, NOREF_NOERR_TRUNC)
-
-    -- My setup (This requires NeoNoName.lua, and optionally NeoWell.lua)
-    local cur_buf = nil
     vim.keymap.set('n', '<CR>', function ()
-      if require('neo-zoom').FLOAT_WIN ~= nil
-        and vim.api.nvim_win_is_valid(require('neo-zoom').FLOAT_WIN) then
-        vim.cmd('NeoZoomToggle')
-        vim.api.nvim_set_current_buf(cur_buf)
-        return
-      end
-      -- don't zoom-in on floating win.
-      if vim.api.nvim_win_get_config(0).relative ~= '' then return end
-      cur_buf = vim.api.nvim_get_current_buf()
+      local win_on_zoom = vim.api.nvim_get_current_win()
+      local buf_on_zoom = vim.api.nvim_get_current_buf()
       vim.cmd('NeoZoomToggle')
-      vim.cmd('wincmd p')
-      local try_get_no_name = require('neo-no-name').get_current_or_first_valid_listed_no_name_buf()
-      if try_get_no_name ~= nil then
-        vim.api.nvim_set_current_buf(try_get_no_name)
-      else
+
+      -- if did zoom then clean-up the window on zoom temporarily to create popup effect.
+      if require('neo-zoom').did_zoom() then
+        vim.api.nvim_set_current_win(win_on_zoom)
         vim.cmd('NeoNoName')
+        vim.cmd('wincmd p')
+      else
+        vim.api.nvim_set_current_buf(buf_on_zoom)
       end
-      vim.cmd('wincmd p')
-      -- Post pop-up commands
-      -- vim.cmd('NeoWellJump')
-    end, NOREF_NOERR_TRUNC)
+    end, { silent = true, nowait = true })
   end
 }
 ```
+
 
