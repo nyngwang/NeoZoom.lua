@@ -6,7 +6,7 @@ NeoZoom.lua aims to help you focus and maybe protect your left-rotated neck.
 
 ### DEMO
 
-TBU.
+https://user-images.githubusercontent.com/24765272/213261410-d40eb109-75fe-4daa-b8fe-228b7a90c03b.mov
 
 
 ### How it works
