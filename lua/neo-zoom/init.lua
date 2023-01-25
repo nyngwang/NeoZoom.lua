@@ -19,12 +19,8 @@ local function create_autocmds()
     pattern = '*',
     callback = function ()
       if not M.did_zoom()[1] then return end
-      local z = M.did_zoom()[2]
-      if vim.api.nvim_get_current_win() ~= z then
-        if vim.api.nvim_win_is_valid(z) then
-          vim.api.nvim_win_close(z, true)
-        end
-        zoom_book[z] = nil
+      if vim.api.nvim_get_current_win() ~= M.did_zoom()[2] then
+        M.neo_zoom()
       end
     end
   })
