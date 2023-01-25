@@ -44,7 +44,7 @@ end
 
 
 function M.neo_zoom(opt)
-  if not opt then opt = M end
+  opt = vim.tbl_deep_extend('force', {}, M, opt or {})
 
   local did_zoom, z = M.did_zoom()
   if did_zoom then -- can always zoom-out regardless of its content.
