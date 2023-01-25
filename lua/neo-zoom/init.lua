@@ -37,7 +37,7 @@ function M.setup(opt)
   M.scrolloff_on_enter = opt.scrolloff_on_enter or scrolloff_on_enter
   M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
-  M.disable_by_cursor = opt.disable_by_cursor or false
+  M.disable_by_cursor = opt.disable_by_cursor and true
 
   -- mappings: zoom_win -> original_win
   zoom_book = {}
@@ -69,7 +69,7 @@ function M.neo_zoom(opt)
     -- try go back first.
     if vim.api.nvim_win_is_valid(z)
       and vim.api.nvim_win_is_valid(zoom_book[z]) then
-      -- NOTE: this will trigger the autocmd `WinEnter`.
+      -- WARN: should be aware of the autocmd `WinEnter` above.
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
     end
