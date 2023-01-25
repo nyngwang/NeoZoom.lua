@@ -1,5 +1,6 @@
 local U = require('neo-zoom.myutils')
 local M = {}
+vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 local width_ratio = 0.66
 local height_ratio = 0.9
@@ -11,6 +12,23 @@ local exclude = { 'lspinfo', 'mason', 'lazy', 'fzf' }
 local zoom_book = {}
 
 
+local function create_autocmds()
+  if not M.disable_by_cursor then return end
+  vim.api.nvim_create_autocmd({ 'WinEnter' }, {
+    group = 'NeoZoom.lua',
+    pattern = '*',
+    callback = function ()
+      if not M.did_zoom()[1] then return end
+      local z = M.did_zoom()[2]
+      if vim.api.nvim_get_current_win() ~= z then
+        if vim.api.nvim_win_is_valid(z) then
+          vim.api.nvim_win_close(z, true)
+        end
+        zoom_book[z] = nil
+      end
+    end
+  })
+end
 ---------------------------------------------------------------------------------------------------
 function M.setup(opt)
   if not opt then opt = {} end
@@ -23,9 +41,11 @@ function M.setup(opt)
   M.scrolloff_on_enter = opt.scrolloff_on_enter or scrolloff_on_enter
   M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
+  M.disable_by_cursor = opt.disable_by_cursor or false
 
   -- mappings: zoom_win -> original_win
   zoom_book = {}
+  create_autocmds()
 end
 
 
@@ -35,30 +55,34 @@ function M.did_zoom(tabpage)
 
   for z, w in pairs(zoom_book) do
     if vim.api.nvim_win_get_tabpage(w) == cur_tab then
-      return true, z
+      return { true, z }
     end
   end
 
-  return false
+  return { false, nil }
 end
 
 
 function M.neo_zoom(opt)
   opt = vim.tbl_deep_extend('force', {}, M, opt or {})
 
-  local did_zoom, z = M.did_zoom()
-  if did_zoom then -- can always zoom-out regardless of its content.
+  -- always zoom-out regardless the type of its content.
+  if M.did_zoom()[1] then
+    local z = M.did_zoom()[2]
+
+    -- try go back first.
+    if vim.api.nvim_win_is_valid(z)
+      and vim.api.nvim_win_is_valid(zoom_book[z]) then
+      -- NOTE: this will trigger the autocmd `WinEnter`.
+      vim.api.nvim_set_current_win(zoom_book[z])
+    end
+
     -- try close the floating window.
     if vim.api.nvim_win_is_valid(z) then
       vim.api.nvim_win_close(z, true)
-
-      -- try zoom out.
-      if vim.api.nvim_win_is_valid(zoom_book[z]) then
-        vim.api.nvim_set_current_win(zoom_book[z])
-      end
     end
 
-    if z then zoom_book[z] = nil end
+    zoom_book[z] = nil
     return
   end
 
