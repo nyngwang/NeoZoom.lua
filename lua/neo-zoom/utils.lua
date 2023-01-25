@@ -15,7 +15,7 @@ function M.table_add_values(table, values)
   for _, v in pairs(values) do
     table[#table + 1] = v
   end
-  
+
   return table
 end
 

@@ -1,4 +1,4 @@
-local U = require('neo-zoom.myutils')
+local U = require('neo-zoom.utils')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
