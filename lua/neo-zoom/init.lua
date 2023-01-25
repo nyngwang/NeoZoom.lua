@@ -1,6 +1,4 @@
-local value_in_table = require('myutils').value_in_table
-local table_add_values = require('myutils').table_add_values
-local add_scrolloff = require('myutils').add_scrolloff
+local U = require('neo-zoom.myutils')
 local M = {}
 ---------------------------------------------------------------------------------------------------
 local width_ratio = 0.66
@@ -21,8 +19,8 @@ function M.setup(opt)
   M.top_ratio = opt.top_ratio or top_ratio
   M.left_ratio = opt.left_ratio or left_ratio
   M.border = opt.border or border
-  M.exclude = table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
-  M.exclude = table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
+  M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
+  M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
 
   -- mappings: zoom_win -> original_win
   M.zoom_book = {}
@@ -64,8 +62,8 @@ function M.neo_zoom(scrolloff)
 
   -- deal with case: did not zoom.
 
-  if value_in_table(M.exclude, vim.bo.filetype)
-    or value_in_table(M.exclude, vim.bo.buftype) then
+  if U.table_contains(M.exclude, vim.bo.filetype)
+    or U.table_contains(M.exclude, vim.bo.buftype) then
     return
   end
 
@@ -94,7 +92,7 @@ function M.neo_zoom(scrolloff)
   ] = win_on_zoom
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
-  add_scrolloff(scrolloff)
+  U.add_scrolloff(scrolloff)
 end
 
 
@@ -103,7 +101,6 @@ local function setup_vim_commands()
     command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
   ]]
 end
-
 setup_vim_commands()
 
 
