@@ -13,23 +13,20 @@ https://user-images.githubusercontent.com/24765272/213261410-d40eb109-75fe-4daa-
 
 The idea is simple: toggle your current window into a floating one, so you can:
 
-1. keep you original window layout **intact**.
-2. keep your tabpage(s) **intact**.
-    - if you know how to use tabpages then this is a good news.
-    - if you don't know how to use tabpages... well, now you don't have to close out-of-use ones. So a good news too.
-3. keep your neck **intact**. Oops, this is intended to be a joke.
+1. keep you window layout **intact** and just focus on the current one.
+2. keep your neck **intact**, since you can always pass an `{opt}` on every call of `neo_zoom()`.
 
+Btw, this is a bullet-proof project, which has experienced three iterations (:tada:),
+you can find my original idea on branch `neo-zoom-original`(no bug on that anymore).
 
-This project now has experienced three iterations (:tada:),
-you can find the original idea(first iter.) on branch `neo-zoom-original`,
-which I won't fix any bug on that anymore.
 
 ### Features
 
-- Only one command: `NeoZoomToggle`.
+- Only one function `neo_zoom({opt})`, where `{opt}` is optional.
+  - it will always pick what you have passed to `setup` if you omit `{opt}`, and command `NeoZoomToggle` is created for this.
+  - You can always get a variation by passing the `{opt}` on every call to customize the top/left/height/width/etc options.
 - Some APIs to help you do customization:
-  - `M.neo_zoom(scrolloff=13)` by passing a custom number `scrolloff`, you can have different scrolloff on zoom.
-  - `M.did_zoom(tabpage=0)` by passing a number `tabpage`, you can check for whether there is zoom-in window on `tabpage`.
+  - `M.did_zoom(tabpage=0)` by passing a number `tabpage`, you can check for whether there is zoom-in window on the given `tabpage`.
 
 
 ### `keymap.set` Example
@@ -39,7 +36,10 @@ note: if you're using `lazy.nvim` then simply replace `requires` with `dependenc
 ```lua
 use {
   'nyngwang/NeoZoom.lua',
-  requires = { 'nyngwang/NeoNoName.lua' }, -- this is only required if you want the `keymap` below.
+  requires = {
+    'nyngwang/NeoNoName.lua' -- this is only required if you want to keep the part
+                             -- after `NOTE` in the `keymap.set` below.
+  },
   config = function ()
     require('neo-zoom').setup {
       -- top_ratio = 0,
@@ -48,19 +48,16 @@ use {
       -- height_ratio = 0.925,
       -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
       exclude_buftypes = { 'terminal' },
+      disable_by_cursor = false, -- zoom-out/unfocus when you click anywhere else.
     }
     vim.keymap.set('n', '<CR>', function ()
       local win_on_zoom = vim.api.nvim_get_current_win()
-      local buf_on_zoom = vim.api.nvim_get_current_buf()
       vim.cmd('NeoZoomToggle')
-
-      -- if did zoom then clean-up the window on zoom temporarily to create popup effect.
-      if require('neo-zoom').did_zoom() then
-        vim.api.nvim_set_current_win(win_on_zoom)
-        vim.cmd('NeoNoName')
-        vim.cmd('wincmd p')
-      else
-        vim.api.nvim_set_current_buf(buf_on_zoom)
+      -- NOTE: Add popup-effect (replace the window on-zoom with a `[No Name]`).
+      --       This way you won't see two windows of the same buffer
+      --       got updated at the same time.
+      if require('neo-zoom').did_zoom()[1] then
+        vim.api.nvim_win_set_buf(win_on_zoom, require('neo-no-name.utils').give_me_a_no_name())
       end
     end, { silent = true, nowait = true })
   end
