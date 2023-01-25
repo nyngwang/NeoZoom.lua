@@ -74,6 +74,7 @@ function M.neo_zoom(opt)
     if vim.api.nvim_win_is_valid(z)
       and vim.api.nvim_win_is_valid(zoom_book[z]) then
       -- NOTE: this will trigger the autocmd `WinEnter`.
+      vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
     end
 
