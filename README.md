@@ -36,10 +36,6 @@ note: if you're using `lazy.nvim` then simply replace `requires` with `dependenc
 ```lua
 use {
   'nyngwang/NeoZoom.lua',
-  requires = {
-    'nyngwang/NeoNoName.lua' -- this is only required if you want to keep the part
-                             -- after `NOTE` in the `keymap.set` below.
-  },
   config = function ()
     require('neo-zoom').setup {
       -- top_ratio = 0,
@@ -47,19 +43,24 @@ use {
       -- width_ratio = 0.775,
       -- height_ratio = 0.925,
       -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
+      -- disable_by_cursor = true, -- zoom-out/unfocus when you click anywhere else.
+      -- popup = {
+      --   -- NOTE: Add popup-effect (replace the window on-zoom with a `[No Name]`).
+      --   -- This way you won't see two windows of the same buffer
+      --   -- got updated at the same time.
+      --   enabled = true,
+      --   exclude = {
+      --     'dap-repl',
+      --     'dapui_stacks',
+      --     'dapui_watches',
+      --     'dapui_scopes',
+      --     'dapui_breakpoints',
+      --     'dapui_console',
+      --   }
+      -- },
       exclude_buftypes = { 'terminal' },
-      disable_by_cursor = false, -- zoom-out/unfocus when you click anywhere else.
     }
-    vim.keymap.set('n', '<CR>', function ()
-      local win_on_zoom = vim.api.nvim_get_current_win()
-      vim.cmd('NeoZoomToggle')
-      -- NOTE: Add popup-effect (replace the window on-zoom with a `[No Name]`).
-      --       This way you won't see two windows of the same buffer
-      --       got updated at the same time.
-      if require('neo-zoom').did_zoom()[1] then
-        vim.api.nvim_win_set_buf(win_on_zoom, require('neo-no-name.utils').give_me_a_no_name())
-      end
-    end, { silent = true, nowait = true })
+    vim.keymap.set('n', '<CR>', function () vim.cmd('NeoZoomToggle') end, { silent = true, nowait = true })
   end
 }
 ```
