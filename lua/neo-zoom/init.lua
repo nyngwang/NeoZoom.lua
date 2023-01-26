@@ -43,6 +43,17 @@ function M.setup(opt)
   M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
   M.disable_by_cursor = opt.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
+  M.popup = opt.popup or {
+    enabled = true,
+    exclude = {
+      'dap-repl',
+      'dapui_stacks',
+      'dapui_watches',
+      'dapui_scopes',
+      'dapui_breakpoints',
+      'dapui_console',
+    },
+  }
 
   -- mappings: zoom_win -> original_win
   zoom_book = {}
@@ -54,8 +65,11 @@ function M.did_zoom(tabpage)
   if not tabpage then tabpage = 0 end
   local cur_tab = vim.api.nvim_get_current_tabpage()
 
-  for z, w in pairs(zoom_book) do
-    if vim.api.nvim_win_get_tabpage(w) == cur_tab then
+  for z, _ in pairs(zoom_book) do
+    if
+      vim.api.nvim_win_is_valid(z)
+      and vim.api.nvim_win_get_tabpage(z) == cur_tab
+    then
       return { true, z }
     end
   end
@@ -73,18 +87,12 @@ function M.neo_zoom(opt)
     local z = M.did_zoom()[2]
 
     -- try go back first.
-    if vim.api.nvim_win_is_valid(z)
-      and vim.api.nvim_win_is_valid(zoom_book[z]) then
-      -- WARN: should be aware of the autocmd `WinEnter` above.
+    if vim.api.nvim_win_is_valid(zoom_book[z]) then
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
     end
 
-    -- try close the floating window.
-    if vim.api.nvim_win_is_valid(z) then
-      vim.api.nvim_win_close(z, true)
-    end
-
+    vim.api.nvim_win_close(z, true)
     zoom_book[z] = nil
     _in_execution = false
     return
@@ -118,6 +126,15 @@ function M.neo_zoom(opt)
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
   U.add_scrolloff(opt.scrolloff_on_enter)
+  if M.popup.enabled
+    and not U.table_contains(M.popup.exclude, vim.bo.filetype)
+    and not U.table_contains(M.popup.exclude, vim.bo.buftype)
+  then
+    vim.api.nvim_set_current_win(win_on_zoom)
+    vim.cmd('enew')
+    vim.bo.bufhidden = 'delete'
+    vim.cmd('wincmd p')
+  end
   _in_execution = false
 end
 
