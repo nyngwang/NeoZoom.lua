@@ -41,7 +41,8 @@ function M.setup(opt)
   M.scrolloff_on_enter = opt.scrolloff_on_enter or scrolloff_on_enter
   M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
-  M.disable_by_cursor = opt.disable_by_cursor and true
+  M.disable_by_cursor = opt.disable_by_cursor
+    if M.disable_by_cursor == nil then M.disable_by_cursor = true end
 
   -- mappings: zoom_win -> original_win
   zoom_book = {}
