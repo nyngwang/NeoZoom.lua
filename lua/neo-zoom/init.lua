@@ -9,16 +9,20 @@ local left_ratio = 0.32
 local border = 'double'
 local scrolloff_on_enter = 13
 local exclude = { 'lspinfo', 'mason', 'lazy', 'fzf' }
+local _in_execution = false
 local zoom_book = {}
 
 
 local function create_autocmds()
-  if not M.disable_by_cursor then return end
   vim.api.nvim_create_autocmd({ 'WinEnter' }, {
     group = 'NeoZoom.lua',
     pattern = '*',
     callback = function ()
-      if not M.did_zoom()[1] then return end
+      if
+        _in_execution
+        or not M.disable_by_cursor
+        or not M.did_zoom()[1]
+      then return end
       if vim.api.nvim_get_current_win() ~= M.did_zoom()[2] then
         M.neo_zoom()
       end
@@ -60,6 +64,7 @@ end
 
 
 function M.neo_zoom(opt)
+  _in_execution = true
   opt = vim.tbl_deep_extend('force', {}, M, opt or {})
 
   -- always zoom-out regardless the type of its content.
@@ -80,16 +85,15 @@ function M.neo_zoom(opt)
     end
 
     zoom_book[z] = nil
+    _in_execution = false
     return
   end
 
   -- deal with case: might zoom.
-
   if U.table_contains(opt.exclude, vim.bo.filetype)
     or U.table_contains(opt.exclude, vim.bo.buftype) then
     return
   end
-
 
   -- deal with case: should zoom.
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
@@ -113,6 +117,7 @@ function M.neo_zoom(opt)
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
   U.add_scrolloff(opt.scrolloff_on_enter)
+  _in_execution = false
 end
 
 
