@@ -39,6 +39,8 @@ function M.setup(opt)
   M.left_ratio = opt.left_ratio or left_ratio
   M.border = opt.border or border
   M.scrolloff_on_enter = opt.scrolloff_on_enter or scrolloff_on_enter
+  M.restore_view_on_zoom_out = opt.restore_view_on_zoom_out
+    if M.restore_view_on_zoom_out == nil then M.restore_view_on_zoom_out = true end
   M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
   M.disable_by_cursor = opt.disable_by_cursor
@@ -55,8 +57,7 @@ function M.setup(opt)
     },
   }
 
-  -- mappings: zoom_win -> original_win
-  zoom_book = {}
+  zoom_book = {} -- mappings: zoom_win -> original_win
   create_autocmds()
 end
 
@@ -88,8 +89,11 @@ function M.neo_zoom(opt)
 
     -- try go back first.
     if vim.api.nvim_win_is_valid(zoom_book[z]) then
+      local view = vim.fn.winsaveview()
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
+        if M.restore_view_on_zoom_out
+        then vim.fn.winrestview(view) end
     end
 
     vim.api.nvim_win_close(z, true)
