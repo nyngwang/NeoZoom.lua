@@ -33,18 +33,18 @@ end
 function M.setup(opt)
   if not opt then opt = {} end
 
-  M.width_ratio = opt.width_ratio or width_ratio
-  M.height_ratio = opt.height_ratio or height_ratio
   M.top_ratio = opt.top_ratio or top_ratio
   M.left_ratio = opt.left_ratio or left_ratio
+  M.width_ratio = opt.width_ratio or width_ratio
+  M.height_ratio = opt.height_ratio or height_ratio
   M.border = opt.border or border
   M.scrolloff_on_enter = opt.scrolloff_on_enter or scrolloff_on_enter
   M.restore_view_on_zoom_out = opt.restore_view_on_zoom_out
     if M.restore_view_on_zoom_out == nil then M.restore_view_on_zoom_out = true end
-  M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
-  M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
   M.disable_by_cursor = opt.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
+  M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
+  M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
   M.popup = opt.popup or {
     enabled = true,
     exclude = {

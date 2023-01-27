@@ -42,8 +42,12 @@ use {
       -- left_ratio = 0.225,
       -- width_ratio = 0.775,
       -- height_ratio = 0.925,
-      -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
+      -- border = 'double',
+      scrolloff_on_enter = 7,
+      -- restore_view_on_zoom_out = true,
       -- disable_by_cursor = true, -- zoom-out/unfocus when you click anywhere else.
+      -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
+      exclude_buftypes = { 'terminal' },
       -- popup = {
       --   -- NOTE: Add popup-effect (replace the window on-zoom with a `[No Name]`).
       --   -- This way you won't see two windows of the same buffer
@@ -58,7 +62,6 @@ use {
       --     'dapui_console',
       --   }
       -- },
-      exclude_buftypes = { 'terminal' },
     }
     vim.keymap.set('n', '<CR>', function () vim.cmd('NeoZoomToggle') end, { silent = true, nowait = true })
   end
