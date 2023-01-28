@@ -7,8 +7,8 @@ local height_ratio = 0.9
 local top_ratio = 0.03
 local left_ratio = 0.32
 local border = 'double'
-local scrolloff_on_zoom_in = { enabled = false, value = 13 }
 local exclude = { 'lspinfo', 'mason', 'lazy', 'fzf' }
+local popup = { enabled = true }
 local _in_execution = false
 local zoom_book = {}
 
@@ -38,11 +38,6 @@ function M.setup(opt)
   M.width_ratio = opt.width_ratio or width_ratio
   M.height_ratio = opt.height_ratio or height_ratio
   M.border = opt.border or border
-  M.scrolloff_on_zoom_in = opt.scrolloff_on_zoom_in or scrolloff_on_zoom_in
-    if not type(M.scrolloff_on_zoom_in) == 'table' then M.scrolloff_on_zoom_in = {} end
-    if not type(M.scrolloff_on_zoom_in.enabled) == 'boolean' then M.scrolloff_on_zoom_in.enabled = false end
-    if type(M.scrolloff_on_zoom_in.enabled) and M.scrolloff_on_zoom_in.value == nil
-    then M.scrolloff_on_zoom_in.value = scrolloff_on_zoom_in.value end
 
   M.restore_view_on_zoom_out = opt.restore_view_on_zoom_out
     if M.restore_view_on_zoom_out == nil then M.restore_view_on_zoom_out = true end
@@ -135,10 +130,7 @@ function M.neo_zoom(opt)
   ] = win_on_zoom
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
-
-  if not M.scrolloff_on_zoom_in.enabled
-  then vim.fn.winrestview(view)
-  else U.add_scrolloff(M.scrolloff_on_zoom_in.value) end
+  vim.fn.winrestview(view)
 
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude, vim.bo.filetype)
