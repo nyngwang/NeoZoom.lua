@@ -119,6 +119,7 @@ function M.neo_zoom(opt)
   local editor = vim.api.nvim_list_uis()[1]
   local float_top = math.ceil(editor.height * M.top_ratio + 0.5)
   local float_left = math.ceil(editor.width * M.left_ratio + 0.5)
+  local view = vim.fn.winsaveview()
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
@@ -135,7 +136,10 @@ function M.neo_zoom(opt)
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
 
-  if M.scrolloff_on_zoom_in.enabled then U.add_scrolloff(M.scrolloff_on_zoom_in.value) end
+  if not M.scrolloff_on_zoom_in.enabled
+  then vim.fn.winrestview(view)
+  else U.add_scrolloff(M.scrolloff_on_zoom_in.value) end
+
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude, vim.bo.filetype)
     and not U.table_contains(M.popup.exclude, vim.bo.buftype)
