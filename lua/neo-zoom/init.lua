@@ -7,7 +7,7 @@ local height_ratio = 0.9
 local top_ratio = 0.03
 local left_ratio = 0.32
 local border = 'double'
-local scrolloff_on_enter = 13
+local scrolloff_on_zoom_in = { enabled = false, value = 13 }
 local exclude = { 'lspinfo', 'mason', 'lazy', 'fzf' }
 local _in_execution = false
 local zoom_book = {}
@@ -38,7 +38,12 @@ function M.setup(opt)
   M.width_ratio = opt.width_ratio or width_ratio
   M.height_ratio = opt.height_ratio or height_ratio
   M.border = opt.border or border
-  M.scrolloff_on_enter = opt.scrolloff_on_enter or scrolloff_on_enter
+  M.scrolloff_on_zoom_in = opt.scrolloff_on_zoom_in or scrolloff_on_zoom_in
+    if not type(M.scrolloff_on_zoom_in) == 'table' then M.scrolloff_on_zoom_in = {} end
+    if not type(M.scrolloff_on_zoom_in.enabled) == 'boolean' then M.scrolloff_on_zoom_in.enabled = false end
+    if type(M.scrolloff_on_zoom_in.enabled) and M.scrolloff_on_zoom_in.value == nil
+    then M.scrolloff_on_zoom_in.value = scrolloff_on_zoom_in.value end
+
   M.restore_view_on_zoom_out = opt.restore_view_on_zoom_out
     if M.restore_view_on_zoom_out == nil then M.restore_view_on_zoom_out = true end
   M.disable_by_cursor = opt.disable_by_cursor
@@ -103,8 +108,8 @@ function M.neo_zoom(opt)
   end
 
   -- deal with case: might zoom.
-  if U.table_contains(opt.exclude, vim.bo.filetype)
-    or U.table_contains(opt.exclude, vim.bo.buftype) then
+  if U.table_contains(M.exclude, vim.bo.filetype)
+    or U.table_contains(M.exclude, vim.bo.buftype) then
     return
   end
 
@@ -112,24 +117,25 @@ function M.neo_zoom(opt)
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local float_top = math.ceil(editor.height * opt.top_ratio + 0.5)
-  local float_left = math.ceil(editor.width * opt.left_ratio + 0.5)
+  local float_top = math.ceil(editor.height * M.top_ratio + 0.5)
+  local float_left = math.ceil(editor.width * M.left_ratio + 0.5)
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
       relative = 'editor',
       row = float_top,
       col = float_left,
-      height = math.ceil(editor.height * opt.height_ratio + 0.5),
-      width = math.ceil(editor.width * opt.width_ratio + 0.5),
+      height = math.ceil(editor.height * M.height_ratio + 0.5),
+      width = math.ceil(editor.width * M.width_ratio + 0.5),
       focusable = true,
       zindex = 5,
-      border = opt.border,
+      border = M.border,
     })
   ] = win_on_zoom
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
-  U.add_scrolloff(opt.scrolloff_on_enter)
+
+  if M.scrolloff_on_zoom_in.enabled then U.add_scrolloff(M.scrolloff_on_zoom_in.value) end
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude, vim.bo.filetype)
     and not U.table_contains(M.popup.exclude, vim.bo.buftype)
