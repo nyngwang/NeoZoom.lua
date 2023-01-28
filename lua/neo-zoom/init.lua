@@ -2,6 +2,7 @@ local U = require('neo-zoom.utils')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
+M._presets_delegate = {}
 local _in_execution = false
 local zoom_book = {}
 
@@ -28,8 +29,8 @@ function M.setup(opt)
 
   M.top_ratio = opt.top_ratio or 0.03
   M.left_ratio = opt.left_ratio or 0.32
-  M.width_ratio = opt.width_ratio or 0.66
   M.height_ratio = opt.height_ratio or 0.9
+  M.width_ratio = opt.width_ratio or 0.66
   M.border = opt.border or 'double'
 
   M.disable_by_cursor = opt.disable_by_cursor
@@ -41,6 +42,39 @@ function M.setup(opt)
     if type(M.popup.enabled) ~= 'boolean' then M.popup.enabled = true end
     if type(M.popup.exclude_filetypes) ~= 'table' then M.popup.exclude_filetypes = {} end
     if type(M.popup.exclude_buftypes) ~= 'table' then M.popup.exclude_buftypes = {} end
+  M.presets = opt.presets or {}
+    if type(M.presets) ~= 'table' then M.presets = {} end
+    setmetatable(M._presets_delegate, {
+      __index = function (_, ft)
+        for _, preset in pairs(M.presets) do
+          if type(preset) ~= 'table'
+            or type(preset.config) ~= 'table'
+            or type(preset.filetypes) ~= 'table'
+          then goto continue end
+          for _, _ft in pairs(preset.filetypes) do
+            if type(_ft) == 'string'
+              and ft == _ft or string.match(ft, _ft) then
+              return {
+                top_ratio = preset.config.top_ratio or M.top_ratio,
+                left_ratio = preset.config.left_ratio or M.left_ratio,
+                height_ratio = preset.config.height_ratio or M.height_ratio,
+                width_ratio = preset.config.width_ratio or M.width_ratio,
+                border = preset.config.border or M.border,
+              }
+            end
+          end
+          ::continue::
+        end
+        -- use default
+        return {
+          top_ratio = M.top_ratio,
+          left_ratio = M.left_ratio,
+          height_ratio = M.height_ratio,
+          width_ratio = M.width_ratio,
+          border = M.border,
+        }
+      end
+    })
 
   zoom_book = {} -- mappings: zoom_win -> original_win
   create_autocmds()
@@ -93,23 +127,29 @@ function M.neo_zoom(opt)
   end
 
   -- deal with case: should zoom.
+  local view = vim.fn.winsaveview()
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local float_top = math.ceil(editor.height * M.top_ratio + 0.5)
-  local float_left = math.ceil(editor.width * M.left_ratio + 0.5)
-  local view = vim.fn.winsaveview()
+  local ui_config = M._presets_delegate[vim.bo.filetype]
+  local float_top = math.ceil(editor.height * ui_config.top_ratio + 0.5)
+  local float_left = math.ceil(editor.width * ui_config.left_ratio + 0.5)
+  local float_height = math.ceil(editor.height * ui_config.height_ratio + 0.5)
+  local float_width = math.ceil(editor.width * ui_config.width_ratio + 0.5)
+  local border = ui_config.border
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
+      -- fixed.
       relative = 'editor',
-      row = float_top,
-      col = float_left,
-      height = math.ceil(editor.height * M.height_ratio + 0.5),
-      width = math.ceil(editor.width * M.width_ratio + 0.5),
       focusable = true,
       zindex = 5,
-      border = M.border,
+      -- variables.
+      row = float_top,
+      col = float_left,
+      height = float_height,
+      width = float_width,
+      border = border,
     })
   ] = win_on_zoom
 
