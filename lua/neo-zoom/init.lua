@@ -2,13 +2,6 @@ local U = require('neo-zoom.utils')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
-local width_ratio = 0.66
-local height_ratio = 0.9
-local top_ratio = 0.03
-local left_ratio = 0.32
-local border = 'double'
-local exclude = { 'lspinfo', 'mason', 'lazy', 'fzf' }
-local popup = { enabled = true }
 local _in_execution = false
 local zoom_book = {}
 
@@ -33,29 +26,23 @@ end
 function M.setup(opt)
   if not opt then opt = {} end
 
-  M.top_ratio = opt.top_ratio or top_ratio
-  M.left_ratio = opt.left_ratio or left_ratio
-  M.width_ratio = opt.width_ratio or width_ratio
-  M.height_ratio = opt.height_ratio or height_ratio
-  M.border = opt.border or border
+  M.top_ratio = opt.top_ratio or 0.03
+  M.left_ratio = opt.left_ratio or 0.32
+  M.width_ratio = opt.width_ratio or 0.66
+  M.height_ratio = opt.height_ratio or 0.9
+  M.border = opt.border or 'double'
 
   M.restore_view_on_zoom_out = opt.restore_view_on_zoom_out
     if M.restore_view_on_zoom_out == nil then M.restore_view_on_zoom_out = true end
   M.disable_by_cursor = opt.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
-  M.exclude = U.table_add_values(exclude, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
+  M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
-  M.popup = opt.popup or {
-    enabled = true,
-    exclude = {
-      'dap-repl',
-      'dapui_stacks',
-      'dapui_watches',
-      'dapui_scopes',
-      'dapui_breakpoints',
-      'dapui_console',
-    },
-  }
+  M.popup = opt.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
+    if type(M.popup) ~= 'table' then M.popup = {} end
+    if type(M.popup.enabled) ~= 'boolean' then M.popup.enabled = true end
+    if type(M.popup.exclude_filetypes) ~= 'table' then M.popup.exclude_filetypes = {} end
+    if type(M.popup.exclude_buftypes) ~= 'table' then M.popup.exclude_buftypes = {} end
 
   zoom_book = {} -- mappings: zoom_win -> original_win
   create_autocmds()
@@ -133,8 +120,8 @@ function M.neo_zoom(opt)
   vim.fn.winrestview(view)
 
   if M.popup.enabled
-    and not U.table_contains(M.popup.exclude, vim.bo.filetype)
-    and not U.table_contains(M.popup.exclude, vim.bo.buftype)
+    and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
+    and not U.table_contains(M.popup.exclude_buftypes, vim.bo.buftype)
   then
     vim.api.nvim_set_current_win(win_on_zoom)
     vim.cmd('enew')

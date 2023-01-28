@@ -52,14 +52,8 @@ use {
       --   -- This way you won't see two windows of the same buffer
       --   -- got updated at the same time.
       --   enabled = true,
-      --   exclude = {
-      --     'dap-repl',
-      --     'dapui_stacks',
-      --     'dapui_watches',
-      --     'dapui_scopes',
-      --     'dapui_breakpoints',
-      --     'dapui_console',
-      --   }
+      --   exclude_filetypes = {},
+      --   exclude_buftypes = {},
       -- },
     }
     vim.keymap.set('n', '<CR>', function () vim.cmd('NeoZoomToggle') end, { silent = true, nowait = true })
