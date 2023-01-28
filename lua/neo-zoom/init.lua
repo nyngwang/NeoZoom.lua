@@ -32,8 +32,6 @@ function M.setup(opt)
   M.height_ratio = opt.height_ratio or 0.9
   M.border = opt.border or 'double'
 
-  M.restore_view_on_zoom_out = opt.restore_view_on_zoom_out
-    if M.restore_view_on_zoom_out == nil then M.restore_view_on_zoom_out = true end
   M.disable_by_cursor = opt.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
   M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
@@ -79,8 +77,7 @@ function M.neo_zoom(opt)
       local view = vim.fn.winsaveview()
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
-        if M.restore_view_on_zoom_out
-        then vim.fn.winrestview(view) end
+      vim.fn.winrestview(view)
     end
 
     vim.api.nvim_win_close(z, true)

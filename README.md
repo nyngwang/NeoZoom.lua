@@ -43,7 +43,6 @@ use {
       -- width_ratio = 0.775,
       -- height_ratio = 0.925,
       -- border = 'double',
-      -- restore_view_on_zoom_out = true,
       -- disable_by_cursor = true, -- zoom-out/unfocus when you click anywhere else.
       -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
       exclude_buftypes = { 'terminal' },
