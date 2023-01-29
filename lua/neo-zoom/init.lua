@@ -157,7 +157,6 @@ function M.neo_zoom(opt)
   ] = win_on_zoom
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
-  vim.fn.winrestview(view)
   if type(preset.callbacks) == 'table' then
     for _, cb in pairs(preset.callbacks) do
       if type(cb) == 'function' then cb() end
@@ -173,6 +172,8 @@ function M.neo_zoom(opt)
     vim.bo.bufhidden = 'delete'
     vim.cmd('wincmd p')
   end
+
+  vim.fn.winrestview(view)
   _in_execution = false
 end
 
