@@ -43,6 +43,7 @@ function M.setup(opt)
     if type(M.popup.exclude_filetypes) ~= 'table' then M.popup.exclude_filetypes = {} end
     if type(M.popup.exclude_buftypes) ~= 'table' then M.popup.exclude_buftypes = {} end
   M.presets = opt.presets or {}
+    -- TODO: need to refactor.
     if type(M.presets) ~= 'table' then M.presets = {} end
     setmetatable(M._presets_delegate, {
       __index = function (_, ft)
@@ -54,24 +55,25 @@ function M.setup(opt)
           for _, _ft in pairs(preset.filetypes) do
             if type(_ft) == 'string'
               and ft == _ft or string.match(ft, _ft) then
-              return {
-                top_ratio = preset.config.top_ratio or M.top_ratio,
-                left_ratio = preset.config.left_ratio or M.left_ratio,
-                height_ratio = preset.config.height_ratio or M.height_ratio,
-                width_ratio = preset.config.width_ratio or M.width_ratio,
-                border = preset.config.border or M.border,
-              }
+              preset.config.top_ratio = preset.config.top_ratio or M.top_ratio
+              preset.config.left_ratio = preset.config.left_ratio or M.left_ratio
+              preset.config.height_ratio = preset.config.height_ratio or M.height_ratio
+              preset.config.width_ratio = preset.config.width_ratio or M.width_ratio
+              preset.config.border = preset.config.border or M.border
+              return preset
             end
           end
           ::continue::
         end
         -- use default
         return {
-          top_ratio = M.top_ratio,
-          left_ratio = M.left_ratio,
-          height_ratio = M.height_ratio,
-          width_ratio = M.width_ratio,
-          border = M.border,
+          config = {
+            top_ratio = M.top_ratio,
+            left_ratio = M.left_ratio,
+            height_ratio = M.height_ratio,
+            width_ratio = M.width_ratio,
+            border = M.border,
+          }
         }
       end
     })
@@ -131,12 +133,12 @@ function M.neo_zoom(opt)
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local ui_config = M._presets_delegate[vim.bo.filetype]
-  local float_top = math.ceil(editor.height * ui_config.top_ratio + 0.5)
-  local float_left = math.ceil(editor.width * ui_config.left_ratio + 0.5)
-  local float_height = math.ceil(editor.height * ui_config.height_ratio + 0.5)
-  local float_width = math.ceil(editor.width * ui_config.width_ratio + 0.5)
-  local border = ui_config.border
+  local preset = M._presets_delegate[vim.bo.filetype]
+  local float_top = math.ceil(editor.height * preset.config.top_ratio + 0.5)
+  local float_left = math.ceil(editor.width * preset.config.left_ratio + 0.5)
+  local float_height = math.ceil(editor.height * preset.config.height_ratio + 0.5)
+  local float_width = math.ceil(editor.width * preset.config.width_ratio + 0.5)
+  local border = preset.config.border
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
