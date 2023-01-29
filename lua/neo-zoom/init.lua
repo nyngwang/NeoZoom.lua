@@ -157,6 +157,11 @@ function M.neo_zoom(opt)
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
   vim.fn.winrestview(view)
+  if type(preset.callbacks) == 'table' then
+    for _, cb in pairs(preset.callbacks) do
+      if type(cb) == 'function' then cb() end
+    end
+  end
 
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
