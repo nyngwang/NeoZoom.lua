@@ -8,7 +8,7 @@ local zoom_book = {}
 
 
 local function create_autocmds()
-  vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  vim.api.nvim_create_autocmd({ 'WinLeave', }, {
     group = 'NeoZoom.lua',
     pattern = '*',
     callback = function ()
@@ -16,9 +16,9 @@ local function create_autocmds()
         _in_execution
         or not M.disable_by_cursor
         or not M.did_zoom()[1]
-        or vim.api.nvim_win_get_config(0).relative ~= ''
+        -- or vim.api.nvim_win_get_config(0).relative ~= ''
       then return end
-      if vim.api.nvim_get_current_win() ~= M.did_zoom()[2] then
+      if vim.api.nvim_get_current_win() == M.did_zoom()[2] then
         M.neo_zoom()
       end
     end
