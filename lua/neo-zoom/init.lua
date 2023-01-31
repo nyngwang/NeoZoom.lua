@@ -14,8 +14,7 @@ local function create_autocmds()
     pattern = '*',
     callback = function ()
       if
-        _in_execution
-        or not M.did_zoom()[1]
+        not M.did_zoom()[1]
         or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
       then return end
       _exit_view = vim.fn.winsaveview()
@@ -30,6 +29,7 @@ local function create_autocmds()
         or not M.disable_by_cursor
         or not M.did_zoom()[1]
         or vim.api.nvim_get_current_win() == M.did_zoom()[2]
+        or vim.api.nvim_win_get_config(0).relative ~= ''
       then return end
       M.neo_zoom()
     end
