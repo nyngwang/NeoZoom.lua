@@ -9,6 +9,18 @@ local zoom_book = {}
 
 
 local function create_autocmds()
+  vim.api.nvim_create_autocmd({ 'WinLeave', }, {
+    group = 'NeoZoom.lua',
+    pattern = '*',
+    callback = function ()
+      if
+        _in_execution
+        or not M.did_zoom()[1]
+        or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
+      then return end
+      _exit_view = vim.fn.winsaveview()
+    end
+  })
   vim.api.nvim_create_autocmd({ 'WinEnter', }, {
     group = 'NeoZoom.lua',
     pattern = '*',
@@ -20,18 +32,6 @@ local function create_autocmds()
         or vim.api.nvim_get_current_win() == M.did_zoom()[2]
       then return end
       M.neo_zoom()
-    end
-  })
-  vim.api.nvim_create_autocmd({ 'WinLeave', }, {
-    group = 'NeoZoom.lua',
-    pattern = '*',
-    callback = function ()
-      if
-        _in_execution
-        or not M.did_zoom()[1]
-        or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
-      then return end
-      _exit_view = vim.fn.winsaveview()
     end
   })
 end
