@@ -16,7 +16,6 @@ local function create_autocmds()
         _in_execution
         or not M.disable_by_cursor
         or not M.did_zoom()[1]
-        -- or vim.api.nvim_win_get_config(0).relative ~= ''
       then return end
       if vim.api.nvim_get_current_win() == M.did_zoom()[2] then
         M.neo_zoom()
