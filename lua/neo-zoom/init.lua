@@ -28,7 +28,6 @@ local function create_autocmds()
     callback = function ()
       if
         _in_execution
-        or not M.disable_by_cursor
         or not M.did_zoom()[1]
         or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
       then return end
