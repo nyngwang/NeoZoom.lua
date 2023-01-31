@@ -4,6 +4,7 @@ vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 M._presets_delegate = {}
 local _in_execution = false
+local _exit_view = nil
 local zoom_book = {}
 
 
@@ -13,13 +14,24 @@ local function create_autocmds()
     pattern = '*',
     callback = function ()
       if
+        not M.did_zoom()[1]
+        or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
+      then return end
+      _exit_view = vim.fn.winsaveview()
+    end
+  })
+  vim.api.nvim_create_autocmd({ 'WinEnter', }, {
+    group = 'NeoZoom.lua',
+    pattern = '*',
+    callback = function ()
+      if
         _in_execution
         or not M.disable_by_cursor
         or not M.did_zoom()[1]
+        or vim.api.nvim_get_current_win() == M.did_zoom()[2]
+        or vim.api.nvim_win_get_config(0).relative ~= ''
       then return end
-      if vim.api.nvim_get_current_win() == M.did_zoom()[2] then
-        M.neo_zoom()
-      end
+      M.neo_zoom()
     end
   })
 end
@@ -110,10 +122,9 @@ function M.neo_zoom(opt)
 
     -- try go back first.
     if vim.api.nvim_win_is_valid(zoom_book[z]) then
-      local view = vim.fn.winsaveview()
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
-      vim.fn.winrestview(view)
+      vim.fn.winrestview(_exit_view)
     end
 
     vim.api.nvim_win_close(z, true)
