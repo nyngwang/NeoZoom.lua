@@ -44,6 +44,7 @@ function M.setup(opt)
   M.height_ratio = opt.height_ratio or 0.9
   M.width_ratio = opt.width_ratio or 0.66
   M.border = opt.border or 'double'
+  M.highlight_overrides = opt.highlight_overrides or {}
 
   M.disable_by_cursor = opt.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
@@ -72,6 +73,7 @@ function M.setup(opt)
               preset.config.height_ratio = preset.config.height_ratio or M.height_ratio
               preset.config.width_ratio = preset.config.width_ratio or M.width_ratio
               preset.config.border = preset.config.border or M.border
+              preset.config.highlight_overrides = preset.config.highlight_overrides or M.highlight_overrides
               return preset
             end
           end
@@ -85,6 +87,7 @@ function M.setup(opt)
             height_ratio = M.height_ratio,
             width_ratio = M.width_ratio,
             border = M.border,
+            highlight_overrides = M.highlight_overrides
           }
         }
       end
@@ -150,6 +153,7 @@ function M.neo_zoom(opt)
   local float_height = math.ceil(editor.height * preset.config.height_ratio + 0.5)
   local float_width = math.ceil(editor.width * preset.config.width_ratio + 0.5)
   local border = preset.config.border
+  local highlight_overrides = preset.config.highlight_overrides
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
@@ -165,6 +169,8 @@ function M.neo_zoom(opt)
       border = border,
     })
   ] = win_on_zoom
+
+  vim.api.nvim_set_hl(0, 'NormalFloat', highlight_overrides)
 
   vim.api.nvim_set_current_buf(buf_on_zoom)
   if type(preset.callbacks) == 'table' then
