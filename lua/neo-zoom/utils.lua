@@ -21,7 +21,7 @@ end
 
 
 function M.run_callbacks(table)
-  if table == 'table' then
+  if type(table) == 'table' then
     for _, cb in pairs(table) do
       if type(cb) == 'function' then cb() end
     end
