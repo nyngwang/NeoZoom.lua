@@ -36,25 +36,25 @@ local function create_autocmds()
   })
 end
 ---------------------------------------------------------------------------------------------------
-function M.setup(opt)
-  if not opt then opt = {} end
+function M.setup(opts)
+  if not opts then opts = {} end
 
-  M.top_ratio = opt.top_ratio or 0.03
-  M.left_ratio = opt.left_ratio or 0.32
-  M.height_ratio = opt.height_ratio or 0.9
-  M.width_ratio = opt.width_ratio or 0.66
-  M.border = opt.border or 'double'
+  M.top_ratio = opts.top_ratio or 0.03
+  M.left_ratio = opts.left_ratio or 0.32
+  M.height_ratio = opts.height_ratio or 0.9
+  M.width_ratio = opts.width_ratio or 0.66
+  M.border = opts.border or 'double'
 
-  M.disable_by_cursor = opt.disable_by_cursor
+  M.disable_by_cursor = opts.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
-  M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opt.exclude_filetypes) == 'table' and opt.exclude_filetypes or {})
-  M.exclude = U.table_add_values(M.exclude, type(opt.exclude_buftypes) == 'table' and opt.exclude_buftypes or {})
-  M.popup = opt.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
+  M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
+  M.exclude = U.table_add_values(M.exclude, type(opts.exclude_buftypes) == 'table' and opts.exclude_buftypes or {})
+  M.popup = opts.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
     if type(M.popup) ~= 'table' then M.popup = {} end
     if type(M.popup.enabled) ~= 'boolean' then M.popup.enabled = true end
     if type(M.popup.exclude_filetypes) ~= 'table' then M.popup.exclude_filetypes = {} end
     if type(M.popup.exclude_buftypes) ~= 'table' then M.popup.exclude_buftypes = {} end
-  M.presets = opt.presets or {}
+  M.presets = opts.presets or {}
     -- TODO: need to refactor.
     if type(M.presets) ~= 'table' then M.presets = {} end
     setmetatable(M._presets_delegate, {
@@ -89,7 +89,7 @@ function M.setup(opt)
         }
       end
     })
-  M.callbacks = opt.callbacks or {}
+  M.callbacks = opts.callbacks or {}
 
   zoom_book = {} -- mappings: zoom_win -> original_win
   create_autocmds()
