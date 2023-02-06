@@ -20,4 +20,13 @@ function M.table_add_values(table, values)
 end
 
 
+function M.run_callbacks(table)
+  if table == 'table' then
+    for _, cb in pairs(table) do
+      if type(cb) == 'function' then cb() end
+    end
+  end
+end
+
+
 return M

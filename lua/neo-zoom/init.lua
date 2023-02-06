@@ -89,6 +89,7 @@ function M.setup(opt)
         }
       end
     })
+  M.callbacks = opt.callbacks or {}
 
   zoom_book = {} -- mappings: zoom_win -> original_win
   create_autocmds()
@@ -165,13 +166,10 @@ function M.neo_zoom(opt)
       border = border,
     })
   ] = win_on_zoom
-
   vim.api.nvim_set_current_buf(buf_on_zoom)
-  if type(preset.callbacks) == 'table' then
-    for _, cb in pairs(preset.callbacks) do
-      if type(cb) == 'function' then cb() end
-    end
-  end
+
+  U.run_callbacks(M.callbacks) -- callbacks for all cases.
+  U.run_callbacks(preset.callbacks) -- callbacks for specific filetypes.
 
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
