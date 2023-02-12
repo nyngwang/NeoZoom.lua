@@ -38,11 +38,16 @@ use {
   'nyngwang/NeoZoom.lua',
   config = function ()
     require('neo-zoom').setup {
-      -- top_ratio = 0,
-      -- left_ratio = 0.225,
-      -- width_ratio = 0.775,
-      -- height_ratio = 0.925,
-      -- border = 'double',
+      winopts = {
+        offset = {
+          -- NOTE: you can omit `top` and/or `left` to center the floating window.
+          -- top = 0,
+          -- left = 0.17,
+          width = 150,
+          height = 0.85,
+        },
+        -- border = 'double',
+      },
       -- disable_by_cursor = true, -- zoom-out/unfocus when you click anywhere else.
       -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
       exclude_buftypes = { 'terminal' },
@@ -50,10 +55,10 @@ use {
         {
           filetypes = { 'dapui_.*', 'dap-repl' },
           config = {
-            top_ratio = 0.25,
-            left_ratio = 0.6,
-            width_ratio = 0.4,
-            height_ratio = 0.65,
+            top = 0.25,
+            left = 0.6,
+            width = 0.4,
+            height = 0.65,
           },
           callbacks = {
             function () vim.wo.wrap = true end,
