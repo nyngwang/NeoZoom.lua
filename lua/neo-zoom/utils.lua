@@ -39,4 +39,14 @@ function M.integer_to_ratio(value, base)
 end
 
 
+function M.get_side_ratio(value, base)
+  return (1 - M.integer_to_ratio(value, base)) / 2
+end
+
+
+function M.with_fallback(A, B)
+  return A and A or B
+end
+
+
 return M

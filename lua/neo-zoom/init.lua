@@ -50,12 +50,12 @@ function M.setup(opts)
   }
     if type(M.winopts) ~= 'table' then M.winopts = {} end
     if type(M.winopts.offset) ~= 'table' then M.winopts.offset = {} end
+      -- center as default.
+      if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 0.8 end
+      if type(M.winopts.offset.height) ~= 'number' then M.winopts.offset.height = 0.9 end
+      if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
+      if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
     if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
-    -- center as default.
-    if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 0.8 end
-    if type(M.winopts.offset.height) ~= 'number' then M.winopts.offset.height = 0.9 end
-    if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = 'auto' end
-    if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = 'auto' end
   M.disable_by_cursor = opts.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
   M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
@@ -79,17 +79,16 @@ function M.setup(opts)
             if type(pattern_ft) == 'string'
               and ft == pattern_ft or string.match(ft, pattern_ft)
             then
-              -- TODO: might include more options in the future.
-              preset.winopts = vim.tbl_deep_extend('force', preset.winopts, M.winopts)
-              return preset
+              return vim.tbl_deep_extend('force', {}, { winopts = M.winopts }, preset)
             end
           end
           ::continue::
         end
         -- use default
-        return {
-          winopts = vim.tbl_deep_extend('force', {}, M.winopts),
-        }
+        return vim.tbl_deep_extend('force', {}, {
+          winopts = M.winopts,
+          callbacks = M.callbacks,
+        })
       end
     })
   M.callbacks = opts.callbacks or {}
@@ -148,14 +147,8 @@ function M.neo_zoom(opt)
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local preset = M._presets_delegate[vim.bo.filetype]
-  -- default to center the floating window.
-  if preset.winopts.offset.top == 'auto' then
-    preset.winopts.offset.top = (1 - U.integer_to_ratio(preset.winopts.offset.height, editor.height)) / 2
-  end
-  if preset.winopts.offset.left == 'auto' then
-    preset.winopts.offset.left = (1 - U.integer_to_ratio(preset.winopts.offset.width, editor.width)) / 2
-  end
+  local winopts = M._presets_delegate[vim.bo.filetype].winopts
+  local offset = winopts.offset
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
@@ -164,17 +157,18 @@ function M.neo_zoom(opt)
       focusable = true,
       zindex = 5,
       -- variables.
-      row = U.ratio_to_integer(preset.winopts.offset.top, editor.height),
-      col = U.ratio_to_integer(preset.winopts.offset.left, editor.width),
-      height = U.ratio_to_integer(preset.winopts.offset.height, editor.height),
-      width = U.ratio_to_integer(preset.winopts.offset.width, editor.width),
-      border = preset.winopts.border,
+      ---- center the floating window by default.
+      row = U.ratio_to_integer(U.with_fallback(offset.top, U.get_side_ratio(offset.height, editor.height)), editor.height),
+      col = U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width),
+      height = U.ratio_to_integer(offset.height, editor.height),
+      width = U.ratio_to_integer(offset.width, editor.width),
+      border = winopts.border,
     })
   ] = win_on_zoom
   vim.api.nvim_set_current_buf(buf_on_zoom)
 
   U.run_callbacks(M.callbacks) -- callbacks for all cases.
-  U.run_callbacks(preset.callbacks) -- callbacks for specific filetypes.
+  U.run_callbacks(winopts.callbacks) -- callbacks for specific filetypes.
 
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
