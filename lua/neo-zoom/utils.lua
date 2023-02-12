@@ -1,6 +1,5 @@
 local M = {}
 
-
 function M.table_contains(table, value)
   for _, v in pairs(table) do
     if v == value then
@@ -10,7 +9,6 @@ function M.table_contains(table, value)
   return false
 end
 
-
 function M.table_add_values(table, values)
   for _, v in pairs(values) do
     table[#table + 1] = v
@@ -18,7 +16,6 @@ function M.table_add_values(table, values)
 
   return table
 end
-
 
 function M.run_callbacks(table)
   if type(table) == 'table' then
@@ -28,15 +25,12 @@ function M.run_callbacks(table)
   end
 end
 
-
 function M.ratio_to_integer(value, base)
-  return value >= 1 and value or math.floor(base * value)
+  return value > 1 and value or math.floor(base * value)
 end
-
 
 function M.integer_to_ratio(value, base)
-  return value < 1 and value or (value / base)
+  return value <= 1 and value or (value / base)
 end
-
 
 return M
