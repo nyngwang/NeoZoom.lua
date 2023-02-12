@@ -30,7 +30,12 @@ end
 
 
 function M.ratio_to_integer(value, base)
-  return value > 1 and value or math.ceil(base * value + 0.5)
+  return value >= 1 and value or math.floor(base * value)
+end
+
+
+function M.integer_to_ratio(value, base)
+  return value < 1 and value or (value / base)
 end
 
 

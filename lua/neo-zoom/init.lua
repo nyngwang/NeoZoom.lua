@@ -39,19 +39,23 @@ end
 function M.setup(opts)
   if not opts then opts = {} end
 
-  -- TODO: use center as default.
   M.winopts = opts.winopts or {
     offset = {
-      top = 0.03,
-      left = 0.32,
-      width = 0.9,
-      height = 0.66,
+      top = 0,
+      left = 0.1,
+      width = 0.8,
+      height = 0.925,
     },
     border = 'double',
   }
     if type(M.winopts) ~= 'table' then M.winopts = {} end
     if type(M.winopts.offset) ~= 'table' then M.winopts.offset = {} end
     if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
+    -- center as default.
+    if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 0.8 end
+    if type(M.winopts.offset.height) ~= 'number' then M.winopts.offset.height = 0.9 end
+    if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = 'auto' end
+    if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = 'auto' end
   M.disable_by_cursor = opts.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
   M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
@@ -145,6 +149,13 @@ function M.neo_zoom(opt)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
   local preset = M._presets_delegate[vim.bo.filetype]
+  -- default to center the floating window.
+  if preset.winopts.offset.top == 'auto' then
+    preset.winopts.offset.top = (1 - U.integer_to_ratio(preset.winopts.offset.height, editor.height)) / 2
+  end
+  if preset.winopts.offset.left == 'auto' then
+    preset.winopts.offset.left = (1 - U.integer_to_ratio(preset.winopts.offset.width, editor.width)) / 2
+  end
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
