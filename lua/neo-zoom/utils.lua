@@ -29,4 +29,9 @@ function M.run_callbacks(table)
 end
 
 
+function M.ratio_to_integer(value, base)
+  return value > 1 and value or math.ceil(base * value + 0.5)
+end
+
+
 return M

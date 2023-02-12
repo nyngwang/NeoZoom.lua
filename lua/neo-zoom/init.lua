@@ -39,17 +39,19 @@ end
 function M.setup(opts)
   if not opts then opts = {} end
 
-  M.top_ratio = opts.top_ratio or 0.03
-  if opts.left_ratio == "nil" then
-    M.left_ratio = nil
-  else
-    M.left_ratio = opts.left_ratio or 0.32
-  end
-  M.height_ratio = opts.height_ratio or 0.9
-  M.width_ratio = opts.width_ratio or 0.66
-  M.border = opts.border or 'double'
-  M.width = opts.width or nil
-
+  -- TODO: use center as default.
+  M.winopts = opts.winopts or {
+    offset = {
+      top = 0.03,
+      left = 0.32,
+      width = 0.9,
+      height = 0.66,
+    },
+    border = 'double',
+  }
+    if type(M.winopts) ~= 'table' then M.winopts = {} end
+    if type(M.winopts.offset) ~= 'table' then M.winopts.offset = {} end
+    if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
   M.disable_by_cursor = opts.disable_by_cursor
     if M.disable_by_cursor == nil then M.disable_by_cursor = true end
   M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
@@ -66,17 +68,15 @@ function M.setup(opts)
       __index = function (_, ft)
         for _, preset in pairs(M.presets) do
           if type(preset) ~= 'table'
-            or type(preset.config) ~= 'table'
+            or type(preset.winopts) ~= 'table'
             or type(preset.filetypes) ~= 'table'
           then goto continue end
-          for _, _ft in pairs(preset.filetypes) do
-            if type(_ft) == 'string'
-              and ft == _ft or string.match(ft, _ft) then
-              preset.config.top_ratio = preset.config.top_ratio or M.top_ratio
-              preset.config.left_ratio = preset.config.left_ratio or M.left_ratio
-              preset.config.height_ratio = preset.config.height_ratio or M.height_ratio
-              preset.config.width_ratio = preset.config.width_ratio or M.width_ratio
-              preset.config.border = preset.config.border or M.border
+          for _, pattern_ft in pairs(preset.filetypes) do
+            if type(pattern_ft) == 'string'
+              and ft == pattern_ft or string.match(ft, pattern_ft)
+            then
+              -- TODO: might include more options in the future.
+              preset.winopts = vim.tbl_deep_extend('force', preset.winopts, M.winopts)
               return preset
             end
           end
@@ -84,14 +84,7 @@ function M.setup(opts)
         end
         -- use default
         return {
-          config = {
-            top_ratio = M.top_ratio,
-            left_ratio = M.left_ratio,
-            height_ratio = M.height_ratio,
-            width_ratio = M.width_ratio,
-            width = M.width,
-            border = M.border,
-          }
+          winopts = vim.tbl_deep_extend('force', {}, M.winopts),
         }
       end
     })
@@ -152,19 +145,6 @@ function M.neo_zoom(opt)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
   local preset = M._presets_delegate[vim.bo.filetype]
-  local float_top = math.ceil(editor.height * preset.config.top_ratio + 0.5)
-  local float_height = math.ceil(editor.height * preset.config.height_ratio + 0.5)
-  -- take fixed width first. If not provided, we will use the ratio
-  local float_width = preset.config.width
-  if float_width == nil then
-    float_width = math.ceil(editor.width * preset.config.width_ratio + 0.5)
-  end
-  -- center the window if float_left is set to nil
-  local float_left = math.ceil((editor.width - float_width) / 2)
-  if preset.config.left_ratio ~= nil then
-    float_left = math.ceil(editor.width * preset.config.left_ratio + 0.5)
-  end
-  local border = preset.config.border
 
   zoom_book[
     vim.api.nvim_open_win(0, true, {
@@ -173,11 +153,11 @@ function M.neo_zoom(opt)
       focusable = true,
       zindex = 5,
       -- variables.
-      row = float_top,
-      col = float_left,
-      height = float_height,
-      width = float_width,
-      border = border,
+      row = U.ratio_to_integer(preset.winopts.offset.top, editor.height),
+      col = U.ratio_to_integer(preset.winopts.offset.left, editor.width),
+      height = U.ratio_to_integer(preset.winopts.offset.height, editor.height),
+      width = U.ratio_to_integer(preset.winopts.offset.width, editor.width),
+      border = preset.winopts.border,
     })
   ] = win_on_zoom
   vim.api.nvim_set_current_buf(buf_on_zoom)
