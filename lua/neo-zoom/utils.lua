@@ -29,18 +29,22 @@ function M.run_callbacks(table)
 end
 
 
-function M.ratio_to_integer(value, base)
-  return value > 1 and value or math.floor(base * value)
+function M.ratio_to_integer(value, base, one_for_full)
+  return one_for_full
+    and (value > 1 and value or math.floor(base * value))
+    or (value >= 1 and value or math.floor(base * value))
 end
 
 
-function M.integer_to_ratio(value, base)
-  return value <= 1 and value or (value / base)
+function M.integer_to_ratio(value, base, one_for_full)
+  return one_for_full
+    and (value <= 1 and value or (value / base))
+    or (value < 1 and value or (value / base))
 end
 
 
 function M.get_side_ratio(value, base)
-  return (1 - M.integer_to_ratio(value, base)) / 2
+  return (1 - M.integer_to_ratio(value, base, true)) / 2
 end
 
 

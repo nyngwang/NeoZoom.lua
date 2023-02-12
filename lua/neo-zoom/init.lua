@@ -159,9 +159,10 @@ function M.neo_zoom(opt)
       -- variables.
       ---- center the floating window by default.
       row = U.ratio_to_integer(U.with_fallback(offset.top, U.get_side_ratio(offset.height, editor.height)), editor.height),
-      col = U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width),
-      height = U.ratio_to_integer(offset.height, editor.height),
-      width = U.ratio_to_integer(offset.width, editor.width),
+      col = 1 + U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width),
+      ---- `1` has special meaning for `height`, `width`.
+      height = U.ratio_to_integer(offset.height, editor.height, true),
+      width = U.ratio_to_integer(offset.width, editor.width, true),
       border = winopts.border,
     })
   ] = win_on_zoom
