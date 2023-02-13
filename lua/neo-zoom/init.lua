@@ -187,9 +187,7 @@ end
 
 
 local function setup_vim_commands()
-  vim.cmd [[
-    command! NeoZoomToggle lua require'neo-zoom'.neo_zoom()
-  ]]
+  vim.api.nvim_create_user_command('NeoZoomToggle', M.neo_zoom, {})
 end
 setup_vim_commands()
 
