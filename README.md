@@ -22,9 +22,10 @@ you can find my original idea on branch `neo-zoom-original`(no bug on that anymo
 
 ### Features
 
-- Only one function `neo_zoom({opt})`, where `{opt}` is optional.
-  - it will always pick what you have passed to `setup` if you omit `{opt}`, and command `NeoZoomToggle` is created for this.
-  - You can always get a variation by passing the `{opt}` on every call to customize the top/left/height/width/etc options.
+- Only one function `neo_zoom()`.
+  - `setup.winopts` will be picked up if no match against `setup.presets[i].filetypes`.
+  - `setup.presets[n]` will be picked up, otherwise.
+  - `setup.callbacks` are always called, regardless of `setup.presets[i].filetypes`.
 - Some APIs to help you do customization:
   - `M.did_zoom(tabpage=0)` by passing a number `tabpage`, you can check for whether there is zoom-in window on the given `tabpage`.
 
@@ -48,7 +49,6 @@ use {
         },
         -- border = 'double',
       },
-      -- disable_by_cursor = true, -- zoom-out/unfocus when you click anywhere else.
       -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
       exclude_buftypes = { 'terminal' },
       presets = {
