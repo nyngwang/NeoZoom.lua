@@ -110,12 +110,13 @@ function M.neo_zoom(opt)
     local z = M.did_zoom()[2]
     local view = vim.fn.winsaveview()
 
-    -- save the view
+    -- try move back to z.
     if vim.api.nvim_get_current_win() ~= z
       and vim.api.nvim_win_is_valid(z)
     then
       vim.api.nvim_set_current_win(z)
-      view = vim.fn.winsaveview()
+      _in_execution = false
+      return
     end
 
     -- try go back first.
