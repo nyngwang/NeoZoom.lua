@@ -4,31 +4,19 @@ vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 M._presets_delegate = {}
 local _in_execution = false
-local _exit_view = nil
 local zoom_book = {}
 
 
 local function create_autocmds()
-  vim.api.nvim_create_autocmd({ 'WinLeave', }, {
-    group = 'NeoZoom.lua',
-    pattern = '*',
-    callback = function ()
-      if
-        not M.did_zoom()[1]
-        or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
-      then return end
-      _exit_view = vim.fn.winsaveview()
-    end
-  })
   vim.api.nvim_create_autocmd({ 'WinEnter', }, {
     group = 'NeoZoom.lua',
     pattern = '*',
     callback = function ()
       if
         _in_execution
-        or not M.disable_by_cursor
         or not M.did_zoom()[1]
-        or vim.api.nvim_get_current_win() == M.did_zoom()[2]
+        or -- back from fzf-lua
+          vim.api.nvim_get_current_win() == M.did_zoom()[2]
         or vim.api.nvim_win_get_config(0).relative ~= ''
       then return end
       M.neo_zoom()
@@ -56,8 +44,6 @@ function M.setup(opts)
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
     if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
-  M.disable_by_cursor = opts.disable_by_cursor
-    if M.disable_by_cursor == nil then M.disable_by_cursor = true end
   M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opts.exclude_buftypes) == 'table' and opts.exclude_buftypes or {})
   M.popup = opts.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
@@ -122,12 +108,21 @@ function M.neo_zoom(opt)
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
     local z = M.did_zoom()[2]
+    local view = vim.fn.winsaveview()
+
+    -- save the view
+    if vim.api.nvim_get_current_win() ~= z
+      and vim.api.nvim_win_is_valid(z)
+    then
+      vim.api.nvim_set_current_win(z)
+      view = vim.fn.winsaveview()
+    end
 
     -- try go back first.
     if vim.api.nvim_win_is_valid(zoom_book[z]) then
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
-      vim.fn.winrestview(_exit_view)
+      vim.fn.winrestview(view)
     end
 
     vim.api.nvim_win_close(z, true)
