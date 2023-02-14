@@ -2,24 +2,51 @@ local U = require('neo-zoom.utils')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
-M._presets_delegate = {}
+local presets_delegate = {}
 local _in_execution = false
 local zoom_book = {}
 
 
 local function create_autocmds()
-  vim.api.nvim_create_autocmd({ 'WinEnter', }, {
+  vim.api.nvim_create_autocmd({ 'WinEnter' }, {
     group = 'NeoZoom.lua',
     pattern = '*',
     callback = function ()
       if
         _in_execution
         or not M.did_zoom()[1]
-        or -- back from fzf-lua
+        or -- it's back to zoom win.
           vim.api.nvim_get_current_win() == M.did_zoom()[2]
         or vim.api.nvim_win_get_config(0).relative ~= ''
       then return end
+      -- it's back to ground.
       M.neo_zoom()
+    end
+  })
+end
+
+
+local function build_presets_delegate()
+  setmetatable(presets_delegate, {
+    __index = function (_, ft)
+      for _, preset in pairs(M.presets) do
+        if type(preset) ~= 'table'
+          or type(preset.winopts) ~= 'table'
+          or type(preset.filetypes) ~= 'table'
+        then goto continue end
+        for _, pattern_ft in pairs(preset.filetypes) do
+          if type(pattern_ft) == 'string'
+            and ft == pattern_ft or string.match(ft, pattern_ft)
+          then
+            -- NOTE: this is just recursive merge, not copy.
+            return vim.tbl_deep_extend('force', {}, { winopts = M.winopts }, preset)
+          end
+        end
+        ::continue::
+      end
+      -- fallback.
+      -- NOTE: this is just recursive merge, not copy.
+      return vim.tbl_deep_extend('force', {}, { winopts = M.winopts, callbacks = {} })
     end
   })
 end
@@ -31,52 +58,33 @@ function M.setup(opts)
     offset = {
       top = 1,
       left = 0.35,
-      width = 0.65,
-      height = 1,
+      width = 130,
+      height = 0.9,
     },
     border = 'double',
   }
     if type(M.winopts) ~= 'table' then M.winopts = {} end
     if type(M.winopts.offset) ~= 'table' then M.winopts.offset = {} end
-      -- center as default.
-      if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 0.8 end
+      if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 130 end
       if type(M.winopts.offset.height) ~= 'number' then M.winopts.offset.height = 0.9 end
+      -- center as default.
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
     if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
-  M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
-  M.exclude = U.table_add_values(M.exclude, type(opts.exclude_buftypes) == 'table' and opts.exclude_buftypes or {})
+  M.exclude_filetypes = U.table_add_values(
+    { 'lspinfo', 'mason', 'lazy', 'fzf' },
+    type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
+  M.exclude_buftypes = U.table_add_values(
+    {  },
+    type(opts.exclude_buftypes) == 'table' and opts.exclude_buftypes or {})
   M.popup = opts.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
     if type(M.popup) ~= 'table' then M.popup = {} end
     if type(M.popup.enabled) ~= 'boolean' then M.popup.enabled = true end
     if type(M.popup.exclude_filetypes) ~= 'table' then M.popup.exclude_filetypes = {} end
     if type(M.popup.exclude_buftypes) ~= 'table' then M.popup.exclude_buftypes = {} end
   M.presets = opts.presets or {}
-    -- TODO: need to refactor.
     if type(M.presets) ~= 'table' then M.presets = {} end
-    setmetatable(M._presets_delegate, {
-      __index = function (_, ft)
-        for _, preset in pairs(M.presets) do
-          if type(preset) ~= 'table'
-            or type(preset.winopts) ~= 'table'
-            or type(preset.filetypes) ~= 'table'
-          then goto continue end
-          for _, pattern_ft in pairs(preset.filetypes) do
-            if type(pattern_ft) == 'string'
-              and ft == pattern_ft or string.match(ft, pattern_ft)
-            then
-              return vim.tbl_deep_extend('force', {}, { winopts = M.winopts }, preset)
-            end
-          end
-          ::continue::
-        end
-        -- use default
-        return vim.tbl_deep_extend('force', {}, {
-          winopts = M.winopts,
-          callbacks = M.callbacks,
-        })
-      end
-    })
+    build_presets_delegate()
   M.callbacks = opts.callbacks or {}
 
   zoom_book = {} -- mappings: zoom_win -> original_win
@@ -93,6 +101,7 @@ function M.did_zoom(tabpage)
       vim.api.nvim_win_is_valid(z)
       and vim.api.nvim_win_get_tabpage(z) == cur_tab
     then
+      -- only returns valid z.
       return { true, z }
     end
   end
@@ -101,28 +110,25 @@ function M.did_zoom(tabpage)
 end
 
 
-function M.neo_zoom(opt)
+function M.neo_zoom()
   _in_execution = true
-  opt = vim.tbl_deep_extend('force', {}, M, opt or {})
 
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
     local z = M.did_zoom()[2]
     local view = vim.fn.winsaveview()
 
-    -- try move back to z.
-    if vim.api.nvim_get_current_win() ~= z
-      and vim.api.nvim_win_is_valid(z)
-    then
+    -- phrase1: try go back to zoom win.
+    if vim.api.nvim_get_current_win() ~= z then
       vim.api.nvim_set_current_win(z)
       _in_execution = false
       return
     end
 
-    -- try go back first.
+    -- phrase2: try go back to original win.
     if vim.api.nvim_win_is_valid(zoom_book[z]) then
-      vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
+      vim.api.nvim_set_current_buf(vim.api.nvim_win_get_buf(z))
       vim.fn.winrestview(view)
     end
 
@@ -133,8 +139,8 @@ function M.neo_zoom(opt)
   end
 
   -- deal with case: might zoom.
-  if U.table_contains(M.exclude, vim.bo.filetype)
-    or U.table_contains(M.exclude, vim.bo.buftype) then
+  if U.table_contains(M.exclude_filetypes, vim.bo.filetype)
+    or U.table_contains(M.exclude_buftypes, vim.bo.buftype) then
     return
   end
 
@@ -143,7 +149,7 @@ function M.neo_zoom(opt)
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local winopts = M._presets_delegate[vim.bo.filetype].winopts
+  local winopts = presets_delegate[vim.bo.filetype].winopts
   local offset = winopts.offset
 
   zoom_book[
