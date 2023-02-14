@@ -2,8 +2,10 @@ local M = {}
 
 
 function M.table_contains(table, value)
-  for _, v in pairs(table) do
-    if v == value then
+  for _, pattern_v in pairs(table) do
+    if value == pattern_v
+      or string.match(value, pattern_v)
+    then
       return true
     end
   end
