@@ -7,25 +7,6 @@ local _in_execution = false
 local zoom_book = {}
 
 
-local function create_autocmds()
-  vim.api.nvim_create_autocmd({ 'WinEnter' }, {
-    group = 'NeoZoom.lua',
-    pattern = '*',
-    callback = function ()
-      if
-        _in_execution
-        or not M.did_zoom()[1]
-        or -- it's back to zoom win.
-          vim.api.nvim_get_current_win() == M.did_zoom()[2]
-        or vim.api.nvim_win_get_config(0).relative ~= ''
-      then return end
-      -- it's back to ground.
-      M.neo_zoom()
-    end
-  })
-end
-
-
 local function build_presets_delegate()
   setmetatable(presets_delegate, {
     __index = function (_, ft)
@@ -88,7 +69,6 @@ function M.setup(opts)
   M.callbacks = opts.callbacks or {}
 
   zoom_book = {} -- mappings: zoom_win -> original_win
-  create_autocmds()
 end
 
 
