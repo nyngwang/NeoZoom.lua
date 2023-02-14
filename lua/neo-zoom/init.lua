@@ -26,7 +26,6 @@ local function create_autocmds()
     callback = function ()
       if
         _in_execution
-        or not M.disable_by_cursor
         or not M.did_zoom()[1]
         or vim.api.nvim_get_current_win() == M.did_zoom()[2]
         or vim.api.nvim_win_get_config(0).relative ~= ''
@@ -56,8 +55,6 @@ function M.setup(opts)
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
     if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
-  M.disable_by_cursor = opts.disable_by_cursor
-    if M.disable_by_cursor == nil then M.disable_by_cursor = true end
   M.exclude = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' }, type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
   M.exclude = U.table_add_values(M.exclude, type(opts.exclude_buftypes) == 'table' and opts.exclude_buftypes or {})
   M.popup = opts.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
