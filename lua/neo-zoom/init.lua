@@ -4,22 +4,10 @@ vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 M._presets_delegate = {}
 local _in_execution = false
-local _exit_view = nil
 local zoom_book = {}
 
 
 local function create_autocmds()
-  vim.api.nvim_create_autocmd({ 'WinLeave', }, {
-    group = 'NeoZoom.lua',
-    pattern = '*',
-    callback = function ()
-      if
-        not M.did_zoom()[1]
-        or vim.api.nvim_get_current_win() ~= M.did_zoom()[2]
-      then return end
-      _exit_view = vim.fn.winsaveview()
-    end
-  })
   vim.api.nvim_create_autocmd({ 'WinEnter', }, {
     group = 'NeoZoom.lua',
     pattern = '*',
@@ -116,6 +104,8 @@ function M.neo_zoom(opt)
   _in_execution = true
   opt = vim.tbl_deep_extend('force', {}, M, opt or {})
 
+  local view = vim.fn.winsaveview()
+
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
     local z = M.did_zoom()[2]
@@ -124,7 +114,7 @@ function M.neo_zoom(opt)
     if vim.api.nvim_win_is_valid(zoom_book[z]) then
       vim.api.nvim_win_set_buf(zoom_book[z], vim.api.nvim_win_get_buf(z))
       vim.api.nvim_set_current_win(zoom_book[z])
-      vim.fn.winrestview(_exit_view)
+      vim.fn.winrestview(view)
     end
 
     vim.api.nvim_win_close(z, true)
@@ -140,7 +130,6 @@ function M.neo_zoom(opt)
   end
 
   -- deal with case: should zoom.
-  local view = vim.fn.winsaveview()
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
