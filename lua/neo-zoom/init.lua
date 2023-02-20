@@ -127,22 +127,21 @@ function M.neo_zoom()
   local winopts = presets_delegate[vim.bo.filetype].winopts
   local offset = winopts.offset
 
-  zoom_book[
-    vim.api.nvim_open_win(0, true, {
-      -- fixed.
-      relative = 'editor',
-      focusable = true,
-      zindex = 5,
-      -- variables.
-      ---- center the floating window by default.
-      row = U.ratio_to_integer(U.with_fallback(offset.top, U.get_side_ratio(offset.height, editor.height)), editor.height),
-      col = 1 + U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width),
-      ---- `1` has special meaning for `height`, `width`.
-      height = U.ratio_to_integer(offset.height, editor.height, true),
-      width = U.ratio_to_integer(offset.width, editor.width, true),
-      border = winopts.border,
-    })
-  ] = win_on_zoom
+  local z = vim.api.nvim_open_win(0, true, {
+    -- fixed.
+    relative = 'editor',
+    focusable = true,
+    zindex = 5,
+    -- variables.
+    ---- center the floating window by default.
+    row = U.ratio_to_integer(U.with_fallback(offset.top, U.get_side_ratio(offset.height, editor.height)), editor.height),
+    col = 1 + U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width),
+    ---- `1` has special meaning for `height`, `width`.
+    height = U.ratio_to_integer(offset.height, editor.height, true),
+    width = U.ratio_to_integer(offset.width, editor.width, true),
+    border = winopts.border,
+  })
+  zoom_book[z] = win_on_zoom
   vim.api.nvim_set_current_buf(buf_on_zoom)
 
   U.run_callbacks(M.callbacks) -- callbacks for all cases.
@@ -155,7 +154,7 @@ function M.neo_zoom()
     vim.api.nvim_set_current_win(win_on_zoom)
     vim.cmd('enew')
     vim.bo.bufhidden = 'delete'
-    vim.cmd('wincmd p')
+    vim.api.nvim_set_current_win(z)
   end
 
   vim.fn.winrestview(view)
