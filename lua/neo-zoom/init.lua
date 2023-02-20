@@ -37,17 +37,17 @@ function M.setup(opts)
 
   M.winopts = opts.winopts or {
     offset = {
-      top = 1,
-      left = 0.35,
-      width = 130,
-      height = 0.9,
+      -- top = 1,
+      left = 0.5,
+      width = 170,
+      height = 0.85,
     },
     border = 'double',
   }
     if type(M.winopts) ~= 'table' then M.winopts = {} end
     if type(M.winopts.offset) ~= 'table' then M.winopts.offset = {} end
-      if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 130 end
-      if type(M.winopts.offset.height) ~= 'number' then M.winopts.offset.height = 0.9 end
+      if type(M.winopts.offset.width) ~= 'number' then M.winopts.offset.width = 170 end
+      if type(M.winopts.offset.height) ~= 'number' then M.winopts.offset.height = 0.85 end
       -- center as default.
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
