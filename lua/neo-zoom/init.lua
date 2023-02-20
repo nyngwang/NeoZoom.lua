@@ -3,7 +3,6 @@ local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 local presets_delegate = {}
-local _in_execution = false
 local zoom_book = {}
 
 
@@ -17,16 +16,17 @@ local function build_presets_delegate()
         then goto continue end
         for _, pattern_ft in pairs(preset.filetypes) do
           if type(pattern_ft) == 'string'
-            and ft == pattern_ft or string.match(ft, pattern_ft)
+            and ft == pattern_ft
+            or string.match(ft, pattern_ft)
           then
-            -- NOTE: this is just recursive merge, not copy.
+            -- WARN: modify the result will change M.winopts.
             return vim.tbl_deep_extend('force', {}, { winopts = M.winopts }, preset)
           end
         end
         ::continue::
       end
       -- fallback.
-      -- NOTE: this is just recursive merge, not copy.
+      -- WARN: modify the result will change M.winopts.
       return vim.tbl_deep_extend('force', {}, { winopts = M.winopts, callbacks = {} })
     end
   })
@@ -52,11 +52,9 @@ function M.setup(opts)
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
     if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
-  M.exclude_filetypes = U.table_add_values(
-    { 'lspinfo', 'mason', 'lazy', 'fzf' },
+  M.exclude_filetypes = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' },
     type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
-  M.exclude_buftypes = U.table_add_values(
-    {  },
+  M.exclude_buftypes = U.table_add_values({},
     type(opts.exclude_buftypes) == 'table' and opts.exclude_buftypes or {})
   M.popup = opts.popup or { enabled = true, exclude_filetypes = {}, exclude_buftypes = {} }
     if type(M.popup) ~= 'table' then M.popup = {} end
@@ -91,7 +89,6 @@ end
 
 
 function M.neo_zoom()
-  _in_execution = true
 
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
@@ -101,7 +98,6 @@ function M.neo_zoom()
     -- phrase1: try go back to zoom win.
     if vim.api.nvim_get_current_win() ~= z then
       vim.api.nvim_set_current_win(z)
-      _in_execution = false
       return
     end
 
@@ -114,7 +110,6 @@ function M.neo_zoom()
 
     vim.api.nvim_win_close(z, true)
     zoom_book[z] = nil
-    _in_execution = false
     return
   end
 
@@ -164,7 +159,6 @@ function M.neo_zoom()
   end
 
   vim.fn.winrestview(view)
-  _in_execution = false
 end
 
 
