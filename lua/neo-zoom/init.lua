@@ -2,6 +2,7 @@ local U = require('neo-zoom.utils')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
+local _setup_is_called = false
 local presets_delegate = {}
 local zoom_book = {}
 
@@ -67,6 +68,7 @@ function M.setup(opts)
   M.callbacks = opts.callbacks or {}
 
   zoom_book = {} -- mappings: zoom_win -> original_win
+  _setup_is_called = true
 end
 
 
@@ -89,7 +91,9 @@ end
 
 
 function M.neo_zoom()
-
+  if not _setup_is_called then
+    error('NeoZoom.lua: Plugin has NOT been initialized. Please call `require("neo-zoom").setup({...})` first!')
+  end
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
     local z = M.did_zoom()[2]
