@@ -4,31 +4,38 @@ local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 local _setup_is_called = false
-local presets_delegate = {}
+local merged_config = {}
+local merged_config_delegate = {}
 
 
-local function build_presets_delegate()
-  setmetatable(presets_delegate, {
+local function build_merged_config()
+  setmetatable(merged_config_delegate, {
     __index = function (_, ft)
+      if type(merged_config[ft]) == 'table'
+      then return merged_config[ft] end
+
       for _, preset in pairs(M.presets) do
+        -- skip incomplete config.
         if type(preset) ~= 'table'
-          or type(preset.winopts) ~= 'table'
           or type(preset.filetypes) ~= 'table'
+          or type(preset.winopts) ~= 'table'
         then goto continue end
+
         for _, pattern_ft in pairs(preset.filetypes) do
           if type(pattern_ft) == 'string'
-            and ft == pattern_ft
-            or string.match(ft, pattern_ft)
+            and ft == pattern_ft or string.match(ft, pattern_ft)
           then
-            -- WARN: modify the result will change M.winopts.
-            return vim.tbl_deep_extend('force', {}, { winopts = M.winopts }, preset)
+            merged_config[ft] = vim.deepcopy(vim.tbl_deep_extend('force',
+              { winopts = M.winopts }, preset))
+            return merged_config[ft]
           end
         end
         ::continue::
       end
       -- fallback.
-      -- WARN: modify the result will change M.winopts.
-      return vim.tbl_deep_extend('force', {}, { winopts = M.winopts, callbacks = {} })
+      merged_config[ft] = vim.deepcopy(vim.tbl_deep_extend('force',
+        {}, { winopts = M.winopts, callbacks = {} }))
+      return merged_config[ft]
     end
   })
 end
@@ -37,6 +44,7 @@ end
 local function update_internals()
   M.zoom_book = {} -- mappings: zoom_win -> original_win
   _setup_is_called = true
+  build_merged_config()
 end
 ---------------------------------------------------------------------------------------------------
 function M.setup(opts)
@@ -70,8 +78,9 @@ function M.setup(opts)
     if type(M.popup.exclude_buftypes) ~= 'table' then M.popup.exclude_buftypes = {} end
   M.presets = opts.presets or {}
     if type(M.presets) ~= 'table' then M.presets = {} end
-    build_presets_delegate()
   M.callbacks = opts.callbacks or {}
+    if type(M.callbacks) ~= 'table' then M.callbacks = {} end
+
 
   update_internals()
   A.create_autocmds()
@@ -134,7 +143,7 @@ function M.neo_zoom()
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local winopts = presets_delegate[vim.bo.filetype].winopts
+  local winopts = merged_config_delegate[vim.bo.filetype].winopts
   local offset = winopts.offset
 
   local z = vim.api.nvim_open_win(0, true, {
@@ -155,7 +164,7 @@ function M.neo_zoom()
   vim.api.nvim_set_current_buf(buf_on_zoom)
 
   U.run_callbacks(M.callbacks) -- callbacks for all cases.
-  U.run_callbacks(winopts.callbacks) -- callbacks for specific filetypes.
+  U.run_callbacks(merged_config_delegate[vim.bo.filetype].callbacks) -- callbacks for specific filetypes.
 
   if M.popup.enabled
     and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
