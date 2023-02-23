@@ -1,4 +1,5 @@
 local U = require('neo-zoom.utils')
+local A = require('neo-zoom.utils.autocmd')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
@@ -74,6 +75,7 @@ function M.setup(opts)
   M.callbacks = opts.callbacks or {}
 
   update_internals()
+  A.create_autocmds()
 end
 
 
