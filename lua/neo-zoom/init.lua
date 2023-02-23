@@ -5,7 +5,6 @@ vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
 ---------------------------------------------------------------------------------------------------
 local _setup_is_called = false
 local presets_delegate = {}
-local zoom_book = {}
 
 
 local function build_presets_delegate()
@@ -36,7 +35,7 @@ end
 
 
 local function update_internals()
-  zoom_book = {} -- mappings: zoom_win -> original_win
+  M.zoom_book = {} -- mappings: zoom_win -> original_win
   _setup_is_called = true
 end
 ---------------------------------------------------------------------------------------------------
@@ -83,7 +82,7 @@ function M.did_zoom(tabpage)
   if not tabpage then tabpage = 0 end
   local cur_tab = vim.api.nvim_get_current_tabpage()
 
-  for z, _ in pairs(zoom_book) do
+  for z, _ in pairs(M.zoom_book) do
     if
       vim.api.nvim_win_is_valid(z)
       and vim.api.nvim_win_get_tabpage(z) == cur_tab
@@ -113,14 +112,14 @@ function M.neo_zoom()
     end
 
     -- phrase2: try go back to original win.
-    if vim.api.nvim_win_is_valid(zoom_book[z]) then
-      vim.api.nvim_set_current_win(zoom_book[z])
+    if vim.api.nvim_win_is_valid(M.zoom_book[z]) then
+      vim.api.nvim_set_current_win(M.zoom_book[z])
       vim.api.nvim_set_current_buf(vim.api.nvim_win_get_buf(z))
       vim.fn.winrestview(view)
     end
 
     vim.api.nvim_win_close(z, true)
-    zoom_book[z] = nil
+    M.zoom_book[z] = nil
     return
   end
 
@@ -152,7 +151,7 @@ function M.neo_zoom()
     width = U.ratio_to_integer(offset.width, editor.width, true),
     border = winopts.border,
   })
-  zoom_book[z] = win_on_zoom
+  M.zoom_book[z] = win_on_zoom
   vim.api.nvim_set_current_buf(buf_on_zoom)
 
   U.run_callbacks(M.callbacks) -- callbacks for all cases.
