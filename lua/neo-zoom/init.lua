@@ -32,6 +32,12 @@ local function build_presets_delegate()
     end
   })
 end
+
+
+local function update_internals()
+  zoom_book = {} -- mappings: zoom_win -> original_win
+  _setup_is_called = true
+end
 ---------------------------------------------------------------------------------------------------
 function M.setup(opts)
   if not opts then opts = {} end
@@ -67,8 +73,7 @@ function M.setup(opts)
     build_presets_delegate()
   M.callbacks = opts.callbacks or {}
 
-  zoom_book = {} -- mappings: zoom_win -> original_win
-  _setup_is_called = true
+  update_internals()
 end
 
 
