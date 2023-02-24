@@ -47,6 +47,7 @@ use {
           width = 150,
           height = 0.85,
         },
+        -- NOTE: check :help nvim_open_win() for possible border values.
         -- border = 'double',
       },
       -- exclude_filetypes = { 'lspinfo', 'mason', 'lazy', 'fzf', 'qf' },
