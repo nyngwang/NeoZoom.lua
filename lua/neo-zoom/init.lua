@@ -18,7 +18,7 @@ local function build_merged_config()
         -- skip incomplete config.
         if type(preset) ~= 'table'
           or type(preset.filetypes) ~= 'table'
-          or type(preset.winopts) ~= 'table'
+          or not (type(preset.winopts) ~= 'table' or type(preset.callbacks) ~= 'table')
         then goto continue end
 
         for _, pattern_ft in pairs(preset.filetypes) do
@@ -66,9 +66,7 @@ function M.setup(opts)
       -- center as default.
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
-    if type(M.winopts.border) ~= 'string' and type(M.winopts.border) ~= 'table' then
-      M.winopts.border = 'double'
-    end
+    if type(M.winopts.border) ~= 'string' then M.winopts.border = 'double' end
   M.exclude_filetypes = U.table_add_values({ 'lspinfo', 'mason', 'lazy', 'fzf' },
     type(opts.exclude_filetypes) == 'table' and opts.exclude_filetypes or {})
   M.exclude_buftypes = U.table_add_values({},
