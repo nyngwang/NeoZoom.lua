@@ -80,6 +80,7 @@ function M.setup(opts)
     if type(M.presets) ~= 'table' then M.presets = {} end
   M.callbacks = opts.callbacks or {}
     if type(M.callbacks) ~= 'table' then M.callbacks = {} end
+    U.table_add_values(M.callbacks, require('neo-zoom.presets.callbacks'))
 
 
   update_internals()
