@@ -162,6 +162,7 @@ function M.neo_zoom()
   })
   M.zoom_book[z] = win_on_zoom
   vim.api.nvim_set_current_buf(buf_on_zoom)
+  vim.fn.winrestview(view)
 
   U.run_callbacks(M.callbacks) -- callbacks for all cases.
   U.run_callbacks(merged_config_delegate[vim.bo.filetype].callbacks) -- callbacks for specific filetypes.
@@ -175,8 +176,6 @@ function M.neo_zoom()
     vim.bo.bufhidden = 'delete'
     vim.api.nvim_set_current_win(z)
   end
-
-  vim.fn.winrestview(view)
 end
 
 
