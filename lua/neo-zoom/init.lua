@@ -66,6 +66,7 @@ function M.setup(opts)
       -- center as default.
       if type(M.winopts.offset.top) ~= 'number' then M.winopts.offset.top = nil end
       if type(M.winopts.offset.left) ~= 'number' then M.winopts.offset.left = nil end
+    if M.winopts.border == 'thicc' then M.winopts.border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' } end
     if type(M.winopts.border) ~= 'string' and type(M.winopts.border) ~= 'table' then
       M.winopts.border = 'double'
     end
