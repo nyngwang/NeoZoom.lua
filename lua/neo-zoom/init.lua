@@ -113,22 +113,26 @@ function M.neo_zoom()
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
     local z = M.did_zoom()[2]
-    local view = vim.fn.winsaveview()
 
-    -- phrase1: try go back to zoom win.
+    -- phrase1: go back to the zoom win first.
     if vim.api.nvim_get_current_win() ~= z then
       vim.api.nvim_set_current_win(z)
       return
     end
 
-    -- phrase2: try go back to original win.
-    if vim.api.nvim_win_is_valid(M.zoom_book[z]) then
+    -- phrase2: close the zoom win.
+
+    -- close the zoom win immediately so that cur_win == zoom_win  on `WinClosed`.
+    local buf_z = vim.api.nvim_win_get_buf(z)
+    local view_z = vim.fn.winsaveview()
+    vim.api.nvim_win_close(z, true)
+
+    if M.zoom_book[z] and vim.api.nvim_win_is_valid(M.zoom_book[z]) then
       vim.api.nvim_set_current_win(M.zoom_book[z])
-      vim.api.nvim_set_current_buf(vim.api.nvim_win_get_buf(z))
-      vim.fn.winrestview(view)
+      vim.api.nvim_set_current_buf(buf_z)
+      vim.fn.winrestview(view_z)
     end
 
-    vim.api.nvim_win_close(z, true)
     M.zoom_book[z] = nil
     return
   end
