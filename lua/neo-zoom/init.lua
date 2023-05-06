@@ -18,12 +18,12 @@ local function build_merged_config()
         -- skip incomplete config.
         if type(preset) ~= 'table'
           or type(preset.filetypes) ~= 'table'
-          or not (type(preset.winopts) ~= 'table' or type(preset.callbacks) ~= 'table')
+          or (type(preset.winopts) ~= 'table' and type(preset.callbacks) ~= 'table')
         then goto continue end
 
         for _, pattern_ft in pairs(preset.filetypes) do
           if type(pattern_ft) == 'string'
-            and ft == pattern_ft or string.match(ft, pattern_ft)
+            and (ft == pattern_ft or string.match(ft, pattern_ft))
           then
             merged_config[ft] = vim.deepcopy(vim.tbl_deep_extend('force',
               { winopts = M.winopts }, preset))
