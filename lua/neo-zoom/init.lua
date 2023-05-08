@@ -176,13 +176,13 @@ function M.neo_zoom()
   U.run_callbacks(merged_config_delegate[vim.bo.filetype].callbacks) -- callbacks for specific filetypes.
 
   if M.popup.enabled
+    and vim.api.nvim_win_is_valid(win_on_zoom)
     and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
     and not U.table_contains(M.popup.exclude_buftypes, vim.bo.buftype)
   then
-    vim.api.nvim_set_current_win(win_on_zoom)
-    vim.cmd('enew')
-    vim.bo.bufhidden = 'delete'
-    vim.api.nvim_set_current_win(z)
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_option(buf, 'bh', 'delete')
+    vim.api.nvim_win_set_buf(win_on_zoom, buf)
   end
 end
 
