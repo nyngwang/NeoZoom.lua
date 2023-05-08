@@ -93,6 +93,7 @@ use {
 
 ### Bonus: transparent bg when unfocus
 
+https://user-images.githubusercontent.com/24765272/236956036-7de2cd97-bb25-4bff-93c1-91dd12618463.mov
 
 <details>
 <summary>Click to expand</summary>
