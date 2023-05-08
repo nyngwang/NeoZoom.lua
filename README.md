@@ -15,11 +15,11 @@ https://user-images.githubusercontent.com/24765272/213261410-d40eb109-75fe-4daa-
 
 The idea is simple: toggle your current window into a floating one, so you can:
 
-1. keep you window layout **intact** and just focus on the current one.
-2. keep your neck **intact**, since you can always pass an `{opt}` on every call of `neo_zoom()`.
+1. Focus on one of your windows without mess-up any of your tabpages(=window layouts).
+2. Pre-define a list of special window layout and assign the a list of `filetype`s for each.
+   This way, you don't have to define many different keymaps for different window layouts.
 
-Btw, this is a bullet-proof project, which has experienced three iterations (:tada:),
-you can find my original idea on branch `neo-zoom-original`(no bug on that anymore).
+(The original idea of this project can be found at branch `neo-zoom-original`)
 
 
 ### Features
