@@ -16,8 +16,8 @@ https://user-images.githubusercontent.com/24765272/213261410-d40eb109-75fe-4daa-
 The idea is simple: toggle your current window into a floating one, so you can:
 
 1. Focus on one of your windows without mess-up any of your tabpages(=window layouts).
-2. Pre-define a list of special window layout and assign the a list of `filetype`s for each.
-   This way, you don't have to define many different keymaps for different window layouts.
+2. Pre-define a window layout for each list of `filetype`s. Now you can use the same
+   keymap to have a customized window layout depending on the `filetype` of the current buffer.
 
 (The original idea of this project can be found at branch `neo-zoom-original`)
 
