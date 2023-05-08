@@ -34,7 +34,11 @@ The idea is simple: toggle your current window into a floating one, so you can:
 
 ### Setup
 
-NOTE: remove `use` if you're using `lazy.nvim`.
+<details>
+<summary>Click to expand </summary>
+<br>
+
+> NOTE: remove `use` if you're using `lazy.nvim`.
 
 ```lua
 use {
@@ -84,4 +88,38 @@ use {
 }
 ```
 
+</details>
 
+
+### Bonus: transparent bg when unfocus
+
+
+<details>
+<summary>Click to expand</summary>
+<br>
+
+```lua
+require('neo-zoom').setup {
+  -- ...
+  callbacks = {
+    function ()
+      if vim.wo.winhl == '' then vim.wo.winhl = 'Normal:' end
+    end,
+    -- ...
+  },
+}
+
+vim.api.nvim_create_autocmd({ 'WinEnter' }, {
+  callback = function ()
+    local did_zoom = require('neo-zoom').did_zoom()
+    if not did_zoom[1] then return end
+
+    -- wait for upstream: https://github.com/neovim/neovim/issues/23542.
+    if vim.api.nvim_get_current_win() == did_zoom[2]
+    then vim.api.nvim_win_set_option(did_zoom[2], 'winbl', 0)
+    else vim.api.nvim_win_set_option(did_zoom[2], 'winbl', 20) end
+  end
+})
+```
+
+</details>
