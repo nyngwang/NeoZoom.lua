@@ -93,6 +93,8 @@ use {
 
 ### Bonus: transparent bg when unfocus
 
+Thanks for the support from the upstream, i.e. https://github.com/neovim/neovim/issues/23542 :) 
+
 https://user-images.githubusercontent.com/24765272/236956036-7de2cd97-bb25-4bff-93c1-91dd12618463.mov
 
 <details>
@@ -100,22 +102,11 @@ https://user-images.githubusercontent.com/24765272/236956036-7de2cd97-bb25-4bff-
 <br>
 
 ```lua
-require('neo-zoom').setup {
-  -- ...
-  callbacks = {
-    function ()
-      if vim.wo.winhl == '' then vim.wo.winhl = 'Normal:' end
-    end,
-    -- ...
-  },
-}
-
 vim.api.nvim_create_autocmd({ 'WinEnter' }, {
   callback = function ()
     local did_zoom = require('neo-zoom').did_zoom()
     if not did_zoom[1] then return end
 
-    -- wait for upstream: https://github.com/neovim/neovim/issues/23542.
     if vim.api.nvim_get_current_win() == did_zoom[2]
     then vim.api.nvim_win_set_option(did_zoom[2], 'winbl', 0)
     else vim.api.nvim_win_set_option(did_zoom[2], 'winbl', 20) end
