@@ -7,9 +7,8 @@ local function detect_colon_q()
     callback = function (args)
       if -- it's not closing the current win.
         vim.api.nvim_get_current_buf() ~= args.buf
-        or not ( -- on floating win of NeoZoom.
-          require('neo-zoom').did_zoom()[1]
-          and vim.api.nvim_get_current_win() == require('neo-zoom').did_zoom()[2])
+        or not -- on floating win of NeoZoom.
+        require('neo-zoom').is_neo_zoom_float()
       then return end
 
       local view = vim.fn.winsaveview()
