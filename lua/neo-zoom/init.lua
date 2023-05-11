@@ -2,6 +2,7 @@ local U = require('neo-zoom.utils')
 local A = require('neo-zoom.utils.autocmd')
 local M = {}
 vim.api.nvim_create_augroup('NeoZoom.lua', { clear = true })
+M.key_neo_zoom_float_check = 'is_neo_zoom_float'
 ---------------------------------------------------------------------------------------------------
 local _setup_is_called = false
 local merged_config = {}
@@ -109,6 +110,12 @@ function M.did_zoom(tabpage)
 end
 
 
+function M.is_neo_zoom_float()
+  local ok, is_neo_zoom_float = pcall(vim.api.nvim_win_get_var, 0, M.key_neo_zoom_float_check)
+  return ok and is_neo_zoom_float
+end
+
+
 function M.neo_zoom()
   if not _setup_is_called then
     error('NeoZoom.lua: Plugin has NOT been initialized. Please call `require("neo-zoom").setup({...})` first!')
@@ -169,6 +176,7 @@ function M.neo_zoom()
     border = winopts.border,
   })
   M.zoom_book[z] = win_on_zoom
+  vim.api.nvim_win_set_var(z, M.key_neo_zoom_float_check, true)
   vim.api.nvim_set_current_buf(buf_on_zoom)
   vim.fn.winrestview(view)
 
