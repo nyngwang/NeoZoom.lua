@@ -122,28 +122,28 @@ function M.neo_zoom()
   end
   -- always zoom-out regardless the type of its content.
   if M.did_zoom()[1] then
-    local z = M.did_zoom()[2]
+    local win_zoom = M.did_zoom()[2]
 
     -- phrase1: go back to the zoom win first.
-    if vim.api.nvim_get_current_win() ~= z then
-      vim.api.nvim_set_current_win(z)
+    if vim.api.nvim_get_current_win() ~= win_zoom then
+      vim.api.nvim_set_current_win(win_zoom)
       return
     end
 
     -- phrase2: close the zoom win.
 
     -- close the zoom win immediately so that cur_win == zoom_win  on `WinClosed`.
-    local buf_z = vim.api.nvim_win_get_buf(z)
+    local buf_z = vim.api.nvim_win_get_buf(win_zoom)
     local view_z = vim.fn.winsaveview()
-    vim.api.nvim_win_close(z, true)
+    vim.api.nvim_win_close(win_zoom, true)
 
-    if M.zoom_book[z] and vim.api.nvim_win_is_valid(M.zoom_book[z]) then
-      vim.api.nvim_set_current_win(M.zoom_book[z])
+    if M.zoom_book[win_zoom] and vim.api.nvim_win_is_valid(M.zoom_book[win_zoom]) then
+      vim.api.nvim_set_current_win(M.zoom_book[win_zoom])
       vim.api.nvim_set_current_buf(buf_z)
       vim.fn.winrestview(view_z)
     end
 
-    M.zoom_book[z] = nil
+    M.zoom_book[win_zoom or 0] = nil
     return
   end
 
@@ -161,7 +161,7 @@ function M.neo_zoom()
   local winopts = merged_config_delegate[vim.bo.filetype].winopts
   local offset = winopts.offset
 
-  local z = vim.api.nvim_open_win(0, true, {
+  local win_zoom = vim.api.nvim_open_win(0, true, {
     -- fixed.
     relative = 'editor',
     focusable = true,
@@ -175,8 +175,8 @@ function M.neo_zoom()
     width = U.ratio_to_integer(offset.width, editor.width, true),
     border = winopts.border,
   })
-  M.zoom_book[z] = win_on_zoom
-  vim.api.nvim_win_set_var(z, M.key_neo_zoom_float_check, true)
+  M.zoom_book[win_zoom] = win_on_zoom
+  vim.api.nvim_win_set_var(win_zoom, M.key_neo_zoom_float_check, true)
   vim.api.nvim_set_current_buf(buf_on_zoom)
   vim.fn.winrestview(view)
 
