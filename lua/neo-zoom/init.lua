@@ -92,14 +92,21 @@ function M.setup(opts)
 end
 
 
-function M.did_zoom(tabpage)
+function M.did_zoom(tabpage, bufpath)
   if not tabpage then tabpage = 0 end
   local cur_tab = vim.api.nvim_get_current_tabpage()
 
-  for z, _ in pairs(M.zoom_book) do
+  for z, e in pairs(M.zoom_book) do
     if
       vim.api.nvim_win_is_valid(z)
       and vim.api.nvim_win_get_tabpage(z) == cur_tab
+      and (
+        -- match all buffer.
+        (not bufpath and vim.api.nvim_win_is_valid(e))
+        or
+        -- match the specified buffer.
+        (bufpath and vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(z)) == vim.fn.fnamemodify(bufpath, ':p'))
+      )
     then
       -- only returns valid z.
       return { true, z }
@@ -116,13 +123,17 @@ function M.is_neo_zoom_float()
 end
 
 
-function M.neo_zoom()
+function M.neo_zoom(opts)
   if not _setup_is_called then
     error('NeoZoom.lua: Plugin has NOT been initialized. Please call `require("neo-zoom").setup({...})` first!')
   end
   -- always zoom-out regardless the type of its content.
-  if M.did_zoom()[1] then
-    local win_zoom = M.did_zoom()[2]
+  if -- it's headless mode.
+    (opts.bufpath and M.did_zoom(0, opts.bufpath)[1])
+    or -- it's general mode.
+    (not opts.bufpath and M.did_zoom()[1])
+  then
+    local win_zoom = M.did_zoom(0, opts.bufpath)[2]
 
     -- phrase1: go back to the zoom win first.
     if vim.api.nvim_get_current_win() ~= win_zoom then
@@ -147,10 +158,12 @@ function M.neo_zoom()
     return
   end
 
-  -- deal with case: might zoom.
-  if U.table_contains(M.exclude_filetypes, vim.bo.filetype)
-    or U.table_contains(M.exclude_buftypes, vim.bo.buftype) then
-    return
+  if not opts.bufpath then
+    -- deal with case: might zoom.
+    if U.table_contains(M.exclude_filetypes, vim.bo.filetype)
+      or U.table_contains(M.exclude_buftypes, vim.bo.buftype) then
+      return
+    end
   end
 
   -- deal with case: should zoom.
@@ -158,7 +171,7 @@ function M.neo_zoom()
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
-  local winopts = merged_config_delegate[vim.bo.filetype].winopts
+  local winopts = opts.winopts or merged_config_delegate[vim.bo.filetype].winopts
   local offset = winopts.offset
 
   local win_zoom = vim.api.nvim_open_win(0, true, {
@@ -173,17 +186,27 @@ function M.neo_zoom()
     ---- `1` has special meaning for `height`, `width`.
     height = U.ratio_to_integer(offset.height, editor.height, true),
     width = U.ratio_to_integer(offset.width, editor.width, true),
-    border = winopts.border,
+    border = winopts.border or { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
   })
-  M.zoom_book[win_zoom] = win_on_zoom
+  if opts.bufpath then
+    M.zoom_book[win_zoom] = -1
+  else
+    M.zoom_book[win_zoom] = win_on_zoom
+  end
+
   vim.api.nvim_win_set_var(win_zoom, M.key_neo_zoom_float_check, true)
-  vim.api.nvim_set_current_buf(buf_on_zoom)
-  vim.fn.winrestview(view)
+  if opts.bufpath then
+    vim.cmd('e ' .. opts.bufpath)
+  else
+    vim.api.nvim_set_current_buf(buf_on_zoom)
+    vim.fn.winrestview(view)
+  end
 
   U.run_callbacks(M.callbacks) -- callbacks for all cases.
   U.run_callbacks(merged_config_delegate[vim.bo.filetype].callbacks) -- callbacks for specific filetypes.
 
-  if M.popup.enabled
+  if not opts.bufpath
+    and M.popup.enabled
     and vim.api.nvim_win_is_valid(win_on_zoom)
     and not U.table_contains(M.popup.exclude_filetypes, vim.bo.filetype)
     and not U.table_contains(M.popup.exclude_buftypes, vim.bo.buftype)
