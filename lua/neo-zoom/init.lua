@@ -129,11 +129,11 @@ function M.neo_zoom(opts)
   end
   -- always zoom-out regardless the type of its content.
   if -- it's headless mode.
-    (opts.bufpath and M.did_zoom(0, opts.bufpath)[1])
+    (opts and M.did_zoom(0, opts.bufpath)[1])
     or -- it's general mode.
-    (not opts.bufpath and M.did_zoom()[1])
+    (not opts and M.did_zoom()[1])
   then
-    local win_zoom = M.did_zoom(0, opts.bufpath)[2]
+    local win_zoom = M.did_zoom(0, opts and opts.bufpath)[2]
 
     -- phrase1: go back to the zoom win first.
     if vim.api.nvim_get_current_win() ~= win_zoom then
