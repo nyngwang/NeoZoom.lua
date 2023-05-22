@@ -104,12 +104,12 @@ https://user-images.githubusercontent.com/24765272/236956036-7de2cd97-bb25-4bff-
 ```lua
 vim.api.nvim_create_autocmd({ 'WinEnter' }, {
   callback = function ()
-    local did_zoom = require('neo-zoom').did_zoom()
-    if not did_zoom[1] then return end
+    local zoom_book = require('neo-zoom').zoom_book
 
-    if vim.api.nvim_get_current_win() == did_zoom[2]
-    then vim.api.nvim_win_set_option(did_zoom[2], 'winbl', 0)
-    else vim.api.nvim_win_set_option(did_zoom[2], 'winbl', 20) end
+    if require('neo-zoom').is_neo_zoom_float()
+    then for z, _ in pairs(zoom_book) do vim.api.nvim_set_option_value('winbl', 0, { win=z }) end
+    else for z, _ in pairs(zoom_book) do vim.api.nvim_set_option_value('winbl', 20, { win=z }) end
+    end
   end
 })
 ```
