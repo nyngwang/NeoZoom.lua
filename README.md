@@ -107,8 +107,8 @@ vim.api.nvim_create_autocmd({ 'WinEnter' }, {
     local zoom_book = require('neo-zoom').zoom_book
 
     if require('neo-zoom').is_neo_zoom_float()
-    then for z, _ in pairs(zoom_book) do vim.api.nvim_set_option_value('winbl', 0, { win=z }) end
-    else for z, _ in pairs(zoom_book) do vim.api.nvim_set_option_value('winbl', 20, { win=z }) end
+    then for z, _ in pairs(zoom_book) do vim.wo[z].winbl = 0 end
+    else for z, _ in pairs(zoom_book) do vim.wo[z].winbl = 20 end
     end
   end
 })

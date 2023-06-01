@@ -212,7 +212,7 @@ function M.neo_zoom(opts)
     and not U.table_contains(M.popup.exclude_buftypes, vim.bo.buftype)
   then
     local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_option(buf, 'bh', 'delete')
+    vim.bo[buf].bh = 'delete'
     vim.api.nvim_win_set_buf(win_on_zoom, buf)
   end
 end
