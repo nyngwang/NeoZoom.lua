@@ -55,4 +55,19 @@ function M.with_fallback(A, B)
 end
 
 
+function M.get_max_height(value, max, top, border)
+  local border_rows = 2
+  if type(border) == "string" and border == "none" then
+    border_rows = 0
+  elseif type(border) == "string" and border == "shadow" then
+    border_rows = 1
+  end
+  if (value + top + border_rows) > max then
+    return max - top - border_rows
+  else
+    return value
+  end
+end
+
+
 return M
