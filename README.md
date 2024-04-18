@@ -3,7 +3,7 @@
 NeoZoom.lua
 ---
 
-NeoZoom.lua aims to help you focus and maybe protect your left-rotated neck.
+NeoZoom.lua helps you focus... and maybe protect your left-rotated neck.
 
 
 ### DEMO
