@@ -171,8 +171,18 @@ function M.neo_zoom(opts)
   local buf_on_zoom = vim.api.nvim_win_get_buf(0)
   local win_on_zoom = vim.api.nvim_get_current_win()
   local editor = vim.api.nvim_list_uis()[1]
+  -- editor height should decrease 1 because command line has higher zindex
+  editor.height = editor.height - 1
   local winopts = opts.winopts or merged_config_delegate[vim.bo.filetype].winopts
   local offset = winopts.offset
+  ---- center the floating window by default.
+  local row = U.ratio_to_integer(U.with_fallback(offset.top, U.get_side_ratio(offset.height, editor.height)), editor.height)
+  local col = U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width)
+  ---- `1` has special meaning for `height`, `width`.
+  ---- restrict max height of floating window to display bottom border
+  local height = U.get_max_height(U.ratio_to_integer(offset.height, editor.height, true), editor.height, row, winopts.border or {})
+  ---- right
+  local width = U.ratio_to_integer(offset.width, editor.width, true)
 
   local win_zoom = vim.api.nvim_open_win(0, true, {
     -- fixed.
@@ -180,12 +190,10 @@ function M.neo_zoom(opts)
     focusable = true,
     zindex = 5,
     -- variables.
-    ---- center the floating window by default.
-    row = U.ratio_to_integer(U.with_fallback(offset.top, U.get_side_ratio(offset.height, editor.height)), editor.height),
-    col = 1 + U.ratio_to_integer(U.with_fallback(offset.left, U.get_side_ratio(offset.width, editor.width)), editor.width),
-    ---- `1` has special meaning for `height`, `width`.
-    height = U.ratio_to_integer(offset.height, editor.height, true),
-    width = U.ratio_to_integer(offset.width, editor.width, true),
+    row = row,
+    col = col,
+    height = height,
+    width = width,
     border = winopts.border or { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
   })
   if opts.bufpath then
