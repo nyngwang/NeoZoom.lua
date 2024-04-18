@@ -13,6 +13,13 @@ local function detect_colon_q()
       local view = vim.fn.winsaveview()
       local buf_zoom = vim.api.nvim_get_current_buf()
       local win_enter = require('neo-zoom').zoom_book[vim.api.nvim_get_current_win()]
+      vim.api.nvim_exec_autocmds('User', {
+        pattern = 'NeoZoomClosed',
+        data = {
+          original_win = win_enter,
+        }
+      })
+
       require('neo-zoom').zoom_book[vim.api.nvim_get_current_win()] = nil
       -- this will be triggered right after `WinClosed`.
       vim.api.nvim_create_autocmd({ 'WinEnter' }, {
